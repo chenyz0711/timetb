@@ -2004,14 +2004,23 @@ function normalizeState(s) {
 }
 
 async function redis(path, method, body) {
-  var opt = { method: method || 'GET', headers: { 'Authorization': 'Bearer ' + CLOUD.token } };
+  /* cache:'no-store' 是 fetch 的请求选项而非请求头，不会改变 CORS 预检所需的头列表 */
+  var opt = { method: method || 'GET', cache: 'no-store', headers: { 'Authorization': 'Bearer ' + CLOUD.token } };
   if (body !== undefined) { opt.headers['Content-Type'] = 'text/plain'; opt.body = body; }
   var res = await fetch(CLOUD.url + path, opt);
-  if (!res.ok) throw new Error('HTTP ' + res.status);
+  if (!res.ok) {
+    /* 把 Upstash 返回的具体原因带出来，便于定位 */
+    var detail = '';
+    try { var ej = await res.json(); if (ej && ej.error) detail = '：' + ej.error; } catch (e2) {}
+    throw new Error('HTTP ' + res.status + detail);
+  }
   return res.json();
 }
 async function cloudGet() {
-  var d = await redis('/get/' + CLOUD.key + '?_=' + Date.now());
+  /* 关键：Upstash REST 的 /get/<key> 不能附加任何查询参数，
+     带了会被当成 GET 命令的多余参数，返回 400 wrong number of arguments。
+     防缓存改用上面的 cache:'no-store'。 */
+  var d = await redis('/get/' + CLOUD.key);
   if (!d || d.result == null) return null;
   try { return JSON.parse(d.result); } catch (e) { return null; }
 }
