@@ -31,6 +31,9 @@
   --c-big:#0b87c9;    --c-big-bg:#e7f5fe;    --c-big-bd:#b3ddf6;
   --c-work:#5856e0;   --c-work-bg:#eeeeff;   --c-work-bd:#cdccfa;
   --c-rep:#d63f8c;    --c-rep-bg:#fdecf5;    --c-rep-bd:#f6c3de;
+  --c-sleep:#6b5bd6;  --c-sleep-bg:#efeaff;  --c-sleep-bd:#cfc4f6;
+  --c-breakfast:#d98600; --c-breakfast-bg:#fff2dd; --c-breakfast-bd:#f4d9a3;
+  --c-lunch:#c2410c;  --c-lunch-bg:#ffeee5;  --c-lunch-bd:#f6cbb2;
 }
 *{box-sizing:border-box}
 html,body{margin:0;padding:0}
@@ -141,6 +144,8 @@ input,select{font:inherit;color:inherit}
 .k-dinner{border-left-color:var(--c-dinner)} .k-rest{border-left-color:var(--c-rest)}
 .k-bigrest{border-left-color:var(--c-big)} .k-homework{border-left-color:var(--c-work)}
 .k-repeat{border-left-color:var(--c-rep)}
+.k-sleep{border-left-color:var(--c-sleep)} .k-breakfast{border-left-color:var(--c-breakfast)}
+.k-lunch{border-left-color:var(--c-lunch)}
 .repmeta{font-size:11px;color:var(--muted);margin-top:2px;line-height:1.4}
 .empty{
   text-align:center;padding:16px 10px;color:var(--muted-2);font-size:12.5px;
@@ -241,6 +246,13 @@ input,select{font:inherit;color:inherit}
 .b-bigrest{background:var(--c-big-bg);border-color:var(--c-big-bd);color:#0a5b87}
 .b-homework{background:var(--c-work-bg);border-color:var(--c-work-bd);color:#3b3aa8}
 .b-repeat{background:var(--c-rep-bg);border-color:var(--c-rep-bd);color:#9c2462}
+.b-breakfast{background:var(--c-breakfast-bg);border-color:var(--c-breakfast-bd);color:#8a5300}
+.b-lunch{background:var(--c-lunch-bg);border-color:var(--c-lunch-bd);color:#9a3412}
+.b-sleep{
+  background:repeating-linear-gradient(135deg,var(--c-sleep-bg),var(--c-sleep-bg) 9px,#e6ddfb 9px,#e6ddfb 18px);
+  border-color:var(--c-sleep-bd);color:#4b3fa8;
+}
+.b-sleep .tag{background:rgba(255,255,255,.85)}
 
 /* SECTION: records */
 .rec-head{padding:14px 16px;border-bottom:1px solid var(--line-soft)}
@@ -267,6 +279,9 @@ input,select{font:inherit;color:inherit}
 .swatch-bigrest{background:var(--c-big)}
 .swatch-homework{background:var(--c-work)}
 .swatch-repeat{background:var(--c-rep)}
+.swatch-sleep{background:var(--c-sleep)}
+.swatch-breakfast{background:var(--c-breakfast)}
+.swatch-lunch{background:var(--c-lunch)}
 
 /* SECTION: modal */
 .mask{
@@ -464,20 +479,15 @@ input,select{font:inherit;color:inherit}
         </div>
       </div>
       <div class="panel">
-        <div class="panel-hd"><h2>存档</h2><span class="cnt" id="fileState">浏览器存档</span></div>
+        <div class="panel-hd"><h2>云端存档</h2><span class="cnt" id="fileState">未同步</span></div>
         <div class="panel-bd">
           <div class="filebox" id="fileBox"></div>
           <div class="filerow">
-            <button class="btn btn-sm" id="btnPickDir" type="button" title="授权一个文件夹，程序会自动在里面建 save/ 和 save/bak/ 并持续写入">📁 选择存档文件夹</button>
+            <button class="btn btn-sm" id="btnSyncNow" type="button" title="立即从云端拉取最新安排">↻ 立即同步</button>
+            <button class="btn btn-sm" id="btnUploadNow" type="button" title="立即把当前安排上传到云端">⬆ 立即上传</button>
           </div>
-          <div class="filerow">
-            <button class="btn btn-sm" id="btnExport" type="button">⬇ 导出存档文件</button>
-            <button class="btn btn-sm" id="btnImport" type="button">⬆ 导入存档文件</button>
-          </div>
-          <input type="file" id="fileImport" accept=".txt,.json,application/json,text/plain" style="display:none">
           <div class="hint" id="fileHint" style="margin:10px 0 0">
-            进度<b>已自动存进浏览器</b>，刷新/重开都不丢。<br>
-            想要 <code>save/timetable.txt</code> 和 <code>save/bak/</code> 每日备份文件：点「选择存档文件夹」授权一次即可（需 Chrome/Edge）。也可随时「导出存档文件」手动备份。
+            进度<b>已自动同步到云端</b>：任何改动都会自动上传，换设备或换浏览器打开会自动下载最新安排，本机同时保留一份离线副本。
           </div>
         </div>
       </div>
@@ -488,10 +498,10 @@ input,select{font:inherit;color:inherit}
             1. 从上面把任务<b>拖到右边格子</b>里<br>
             2. 手机 / 触屏：<b>先点任务卡，再点格子</b><br>
             3. 每个作业<b>只能排一次</b>，排过后卡片变灰<br>
-            4. 点已排好的块可以<b>移动</b>或<b>移除</b><br>
-            5. 把任务<b>拖到屏幕最右边</b>的 🗑 即可删除<br>
-            6. 晚上点<b>结束今天</b>，就会存进记录<br>
-            7. 所有改动<b>随时自动保存</b>
+            4. <b>早晨睡觉</b>点一个格子=起床位置，开头到此格全部合并；<b>晚上睡觉</b>点一个格子=入睡位置，此格到结尾全部合并<br>
+            5. 周末任务库会多出<b>早饭、午饭</b><br>
+            6. 点已排好的块可以<b>移动</b>或<b>移除</b>；把任务<b>拖到屏幕最右边</b>的 🗑 即可删除<br>
+            7. 晚上点<b>结束今天</b>，就会存进记录；所有改动<b>随时自动保存</b>
           </div>
         </div>
       </div>
@@ -540,7 +550,7 @@ input,select{font:inherit;color:inherit}
   </div>
 
   <div class="foot">
-    数据只保存在这台电脑的浏览器里，不会上传。换浏览器或清缓存会丢失，重要记录建议截图留存。
+    数据会自动同步到云端，本机浏览器同时保留一份离线副本；换设备或换浏览器打开会自动下载最新安排。
     <br><button type="button" id="btnReset">清空全部数据并恢复初始状态</button>
   </div>
 </div>
@@ -632,6 +642,1489 @@ input,select{font:inherit;color:inherit}
   </div>
 </div>
 
-<script src="assets/app.js"></script>
+<script>
+/* 初三时间管理台 — 全部交互逻辑 */
+(function () {
+'use strict';
+
+/* SECTION: constants */
+var STORE_KEY = 'qws_timetable_v1';
+var SLOT_MIN = 15;
+var WEEKDAY_START = 17 * 60 + 30;   /* 工作日 17:30 开始 */
+var WEEKEND_START = 7 * 60 + 30;    /* 周六日 7:30 开始 */
+var DAY_END = 24 * 60 + 60;         /* 到次日 1:00 结束 */
+var DW_NAMES = ['周日','周一','周二','周三','周四','周五','周六'];
+var DW_SHORT = ['日','一','二','三','四','五','六'];
+
+var KIND_LABEL = { dinner:'晚饭', rest:'休息', bigrest:'大休息', homework:'作业', repeat:'重复',
+                   sleep:'睡觉', breakfast:'早饭', lunch:'午饭' };
+var MAX_SLOTS = 16;
+
+/* 固定任务：when=all 所有日子可用，when=weekend 仅周末额外出现；
+   span=morning/night 为“睡觉合并块”——早晨睡觉占据开头到放置处，晚上睡觉占据放置处到结束 */
+var FIXED_DEFS = [
+  { id:'fx-morning-sleep', name:'早晨睡觉', slots:1, kind:'sleep',     span:'morning', when:'all' },
+  { id:'fx-night-sleep',   name:'晚上睡觉', slots:1, kind:'sleep',     span:'night',   when:'all' },
+  { id:'fx-breakfast',     name:'早饭',     slots:2, kind:'breakfast', when:'weekend' },
+  { id:'fx-lunch',         name:'午饭',     slots:3, kind:'lunch',     when:'weekend' },
+  { id:'fx-dinner',        name:'晚饭',     slots:2, kind:'dinner',    when:'all' },
+  { id:'fx-rest1',         name:'休息',     slots:1, kind:'rest',      when:'all' },
+  { id:'fx-big',           name:'大休息',   slots:3, kind:'bigrest',   when:'all' },
+  { id:'fx-rest2',         name:'休息',     slots:1, kind:'rest',      when:'all' }
+];
+/* 当天可用的固定任务（周末额外有早饭/午饭） */
+function fixedDefsFor(k) {
+  var we = isWeekend(k);
+  return FIXED_DEFS.filter(function (f) { return f.when === 'all' || (f.when === 'weekend' && we); });
+}
+/* 是否为睡觉合并块 */
+function isSleepSpan(src) { return !!src && (src.span === 'morning' || src.span === 'night'); }
+
+/* 时间段数的可读标签：N 段 · 时长 */
+function slotLabel(n) {
+  var m = n * SLOT_MIN, h = Math.floor(m / 60), mm = m % 60;
+  var t = h ? (mm ? h + ' 小时 ' + mm + ' 分' : h + ' 小时') : mm + ' 分';
+  return n + ' 段 · ' + t;
+}
+/* 根据“锚点格”和合并方向算出实际覆盖范围：
+   morning=从开头(0)到锚点；night=从锚点到结尾；普通=锚点起 slots 格 */
+function spanFromAnchor(span, anchor, slots, rows) {
+  if (span === 'morning') return { start: 0, count: anchor + 1 };
+  if (span === 'night') return { start: anchor, count: rows - anchor };
+  return { start: anchor, count: slots };
+}
+/* 是否固定任务、某固定任务当天是否已排（固定任务每天每样只排一次） */
+function isFixedDef(id) {
+  for (var i = 0; i < FIXED_DEFS.length; i++) if (FIXED_DEFS[i].id === id) return true;
+  return false;
+}
+function fixedPlacedOnDay(id, k) {
+  var n = 0;
+  for (var i = 0; i < state.placements.length; i++) {
+    var p = state.placements[i];
+    if (p.day === k && p.taskId === id) n++;
+  }
+  return n;
+}
+
+/* SECTION: state */
+var state = null;
+var ui = {
+  weekStart: null,      /* 当前查看周的周一 Date */
+  dayKey: null,         /* 当前选中日期 YYYY-MM-DD */
+  tab: 'plan',
+  pending: null,        /* {mode:'new'|'move', taskId, slots, moveId, name, kind} */
+  drag: null,           /* 拖拽中的数据 */
+  cellEls: [],
+  hiFrom: -1, hiTo: -1, hiOk: true, hiAnchor: -1
+};
+
+/* SECTION: date helpers */
+function pad(n) { return n < 10 ? '0' + n : '' + n; }
+function keyOf(d) { return d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate()); }
+function parseKey(k) { var p = k.split('-'); return new Date(+p[0], +p[1] - 1, +p[2]); }
+function addDays(d, n) { var x = new Date(d.getFullYear(), d.getMonth(), d.getDate()); x.setDate(x.getDate() + n); return x; }
+function mondayOf(d) { return addDays(d, -((d.getDay() + 6) % 7)); }
+function todayKey() { return keyOf(new Date()); }
+function dowOf(k) { return parseKey(k).getDay(); }
+function isWeekend(k) { var w = dowOf(k); return w === 0 || w === 6; }
+function gridStart(k) { return isWeekend(k) ? WEEKEND_START : WEEKDAY_START; }
+function gridRows(k) { return Math.round((DAY_END - gridStart(k)) / SLOT_MIN); }
+function minuteAt(k, idx) { return (gridStart(k) + idx * SLOT_MIN) % 1440; }
+function isNextDay(k, idx) { return (gridStart(k) + idx * SLOT_MIN) >= 1440; }
+function hm(k, idx) { var m = minuteAt(k, idx); return pad(Math.floor(m / 60)) + ':' + pad(m % 60); }
+function spanLabel(k, start, slots) {
+  return (isNextDay(k, start) ? '次日' : '') + hm(k, start) + '-' +
+         (isNextDay(k, start + slots) ? '次日' : '') + hm(k, start + slots);
+}
+function slotForTime(k, minutes) {
+  var start = gridStart(k), rows = gridRows(k);
+  var base = minutes >= start ? minutes : minutes + 1440;
+  var off = base - start;
+  if (off < 0 || off % SLOT_MIN !== 0) return -1;
+  var idx = off / SLOT_MIN;
+  return idx < rows ? idx : -1;
+}
+function fmtDate(k) { var p = k.split('-'); return (+p[1]) + '月' + (+p[2]) + '日'; }
+function weekRangeLabel(mon) {
+  var sun = addDays(mon, 6);
+  return fmtDate(keyOf(mon)) + ' - ' + fmtDate(keyOf(sun));
+}
+
+/* SECTION: storage */
+var saveTimer = null;
+function save() {
+  var si = document.getElementById('saveInfo'), st = document.getElementById('saveText');
+  si.classList.add('saving'); st.textContent = '保存中…';
+  clearTimeout(saveTimer);
+  saveTimer = setTimeout(function () {
+    try {
+      localStorage.setItem(STORE_KEY, JSON.stringify(state));
+      si.classList.remove('saving');
+      st.textContent = '已自动保存 ' + hm2(new Date());
+      scheduleCloudPush();   /* 本地存好后，防抖推送到云端 */
+    } catch (e) {
+      si.classList.remove('saving');
+      st.textContent = '保存失败';
+      toast('自动保存失败：浏览器本地存储不可用', 'err');
+    }
+  }, 220);
+}
+function hm2(d) { return pad(d.getHours()) + ':' + pad(d.getMinutes()) + ':' + pad(d.getSeconds()); }
+
+function defaultState() {
+  return {
+    v: 2,
+    tasks: [],            /* 作业由用户自己添加，不预置示例 */
+    repeats: [],
+    placements: [],
+    days: {},
+    records: {},
+    seeded: false
+  };
+}
+function load() {
+  try {
+    var raw = localStorage.getItem(STORE_KEY);
+    if (raw) {
+      var s = JSON.parse(raw);
+      if (s && typeof s === 'object') {
+        s.tasks = Array.isArray(s.tasks) ? s.tasks : [];
+        s.repeats = Array.isArray(s.repeats) ? s.repeats : [];
+        s.placements = Array.isArray(s.placements) ? s.placements : [];
+        s.days = s.days && typeof s.days === 'object' ? s.days : {};
+        s.records = s.records && typeof s.records === 'object' ? s.records : {};
+        return migrate(s);
+      }
+    }
+  } catch (e) { /* 数据损坏则重建 */ }
+  return defaultState();
+}
+/* v1 → v2 迁移：移除自动排入的固定任务与内置示例作业，符合“不预置、不自动放”的新要求 */
+var SEED_NAMES = { '数学练习卷':1, '英语单词背诵':1, '物理错题整理':1 };
+function migrate(s) {
+  if ((s.v || 1) >= 2) return s;
+  /* 移除 v1 自动排入的固定任务安排 */
+  s.placements = s.placements.filter(function (p) { return p.source !== 'fixed'; });
+  /* 仅在数据仍是初始种子（未被改动）时，移除内置示例作业 */
+  if (s.seeded === true) {
+    var removed = {};
+    s.tasks = s.tasks.filter(function (t) {
+      if (SEED_NAMES[t.name]) { removed[t.id] = 1; return false; }
+      return true;
+    });
+    s.placements = s.placements.filter(function (p) { return !removed[p.taskId]; });
+  }
+  s.v = 2;
+  s.seeded = false;
+  return s;
+}
+function uid(p) { return p + '-' + Date.now().toString(36) + '-' + Math.random().toString(36).slice(2, 7); }
+
+/* SECTION: data access */
+function taskById(id) {
+  for (var i = 0; i < FIXED_DEFS.length; i++) if (FIXED_DEFS[i].id === id) return FIXED_DEFS[i];
+  for (var j = 0; j < state.tasks.length; j++) if (state.tasks[j].id === id) return state.tasks[j];
+  return null;
+}
+function placementsFor(k) {
+  return state.placements.filter(function (p) { return p.day === k; });
+}
+function dayMeta(k) {
+  if (!state.days[k]) state.days[k] = { fixedInit: false, skipRepeat: [] };
+  if (!Array.isArray(state.days[k].skipRepeat)) state.days[k].skipRepeat = [];
+  return state.days[k];
+}
+function occupancy(k, excludeId) {
+  var rows = gridRows(k), arr = new Array(rows), i;
+  for (i = 0; i < rows; i++) arr[i] = null;
+  placementsFor(k).forEach(function (p) {
+    if (p.id === excludeId) return;
+    var sp = spanOf(p, rows);
+    for (var s = sp.start; s < sp.start + sp.count; s++) if (s >= 0 && s < rows) arr[s] = p;
+  });
+  return arr;
+}
+/* 已排任务块的实际覆盖范围（睡觉块合并前后格子，其余按 slots） */
+function spanOf(p, rows) {
+  if (p.span === 'morning') return { start: 0, count: p.startSlot + 1 };
+  if (p.span === 'night') return { start: p.startSlot, count: rows - p.startSlot };
+  return { start: p.startSlot, count: p.slots };
+}
+function checkFit(k, start, slots, excludeId) {
+  var rows = gridRows(k);
+  if (start < 0 || slots < 1) return { ok: false, why: '位置无效' };
+  if (start + slots > rows) return { ok: false, why: '超出当天范围（这天到次日1:00结束）' };
+  var occ = occupancy(k, excludeId);
+  for (var i = start; i < start + slots; i++) {
+    if (occ[i]) return { ok: false, why: '和「' + nameOf(occ[i]) + '」时间冲突', hit: occ[i] };
+  }
+  return { ok: true };
+}
+/* 放置校验：普通任务用 checkFit；睡觉块按合并范围检测冲突 */
+function checkPlace(k, span, anchor, slots, excludeId) {
+  var rows = gridRows(k);
+  if (anchor < 0 || anchor >= rows) return { ok: false, why: '位置无效' };
+  var sp = spanFromAnchor(span, anchor, slots, rows);
+  var occ = occupancy(k, excludeId);
+  for (var i = sp.start; i < sp.start + sp.count; i++) {
+    if (i >= 0 && i < rows && occ[i] && occ[i].id !== excludeId) {
+      return { ok: false, why: '和「' + nameOf(occ[i]) + '」时间冲突', hit: occ[i] };
+    }
+  }
+  return { ok: true, start: sp.start, count: sp.count };
+}
+function nameOf(p) {
+  if (p.name) return p.name;
+  var t = taskById(p.taskId);
+  return t ? t.name : '未命名任务';
+}
+function kindOf(p) {
+  if (p.kind) return p.kind;
+  var t = taskById(p.taskId);
+  return t ? t.kind : 'homework';
+}
+/* 当天所有「休息」按时间先后编号：第1个=休息1，第2个=休息2…… */
+function restOrderMap(k) {
+  var rests = state.placements.filter(function (p) { return p.day === k && kindOf(p) === 'rest'; })
+    .sort(function (a, b) { return a.startSlot - b.startSlot; });
+  var map = {};
+  for (var i = 0; i < rests.length; i++) map[rests[i].id] = i + 1;
+  return map;
+}
+/* 展示用名称：休息按当天时间顺序显示「休息N」，其余用原名 */
+function displayName(p) {
+  if (kindOf(p) === 'rest') {
+    var n = restOrderMap(p.day)[p.id];
+    if (n) return '休息' + n;
+  }
+  return nameOf(p);
+}
+/* 是否为用户作业（区别于固定任务 fx-* 与重复任务 repeatId） */
+function isHomeworkTask(taskId) {
+  if (!taskId) return false;
+  for (var i = 0; i < state.tasks.length; i++) if (state.tasks[i].id === taskId) return true;
+  return false;
+}
+/* 某作业已被放置的次数：作业只允许放一次 */
+function homeworkPlacedCount(taskId) {
+  if (!isHomeworkTask(taskId)) return 0;
+  var n = 0;
+  for (var i = 0; i < state.placements.length; i++) if (state.placements[i].taskId === taskId) n++;
+  return n;
+}
+
+/* 每次打开某天时：仅补排「每周重复任务」；固定任务（晚饭/休息/大休息）不自动放置，由用户自己拖 */
+function ensureDay(k) {
+  var meta = dayMeta(k), changed = false;
+  if (!meta.fixedInit) meta.fixedInit = true;  /* 标记已初始化，但不再自动排入固定任务 */
+  state.repeats.forEach(function (r) {
+    if (meta.skipRepeat.indexOf(r.id) >= 0) return;
+    var exists = state.placements.some(function (p) { return p.day === k && p.repeatId === r.id; });
+    if (exists) return;
+    if (r.days.indexOf(dowOf(k)) < 0) return;
+    var idx = slotForTime(k, r.minutes);
+    if (idx < 0) return;                                   /* 不在当天格子范围内，跳过 */
+    if (!checkFit(k, idx, r.slots, null).ok) return;       /* 有冲突就不硬塞 */
+    state.placements.push({
+      id: uid('p'), day: k, repeatId: r.id, taskId: null,
+      name: r.name, kind: 'repeat', startSlot: idx, slots: r.slots, source: 'auto'
+    });
+    changed = true;
+  });
+  if (changed) save();
+}
+
+/* SECTION: toast + confirm */
+var toastTimer = null;
+function toast(msg, type) {
+  var el = document.getElementById('toast');
+  el.textContent = msg;
+  el.className = 'toast on' + (type ? ' ' + type : '');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(function () { el.className = 'toast'; }, 2600);
+}
+var confirmCb = null;
+function askConfirm(title, msg, okText, danger) {
+  document.getElementById('cfTitle').textContent = title;
+  document.getElementById('cfMsg').innerHTML = msg;
+  var y = document.getElementById('cfYes');
+  y.textContent = okText || '确定';
+  y.className = 'btn ' + (danger ? 'btn-danger' : 'btn-primary');
+  openMask('maskConfirm');
+  return new Promise(function (res) { confirmCb = res; });
+}
+function openMask(id) { document.getElementById(id).classList.add('on'); }
+function closeMask(id) {
+  document.getElementById(id).classList.remove('on');
+  if (id === 'maskConfirm' && confirmCb) { var f = confirmCb; confirmCb = null; f(false); }
+}
+
+/* SECTION: library render */
+function makeCard(opt) {
+  var el = document.createElement('div');
+  el.className = 'tcard k-' + opt.kind + (opt.placed ? ' placed' : '');
+  el.draggable = !opt.placed;
+  el.dataset.taskId = opt.taskId || '';
+  el.dataset.repeatId = opt.repeatId || '';
+  el.dataset.slots = opt.slots;
+  el.dataset.name = opt.name;
+  el.dataset.kind = opt.kind;
+  el.dataset.span = opt.span || '';
+  el.tabIndex = 0;
+  el.setAttribute('role', 'button');
+  el.setAttribute('aria-label', opt.name + '，' + (opt.span ? '睡觉合并块' : opt.slots + ' 个时间段') + (opt.placed ? '，已排入，不能重复排' : '，点一下再点格子即可放入'));
+
+  var nm = document.createElement('div');
+  nm.className = 'nm'; nm.textContent = opt.name;
+  var dur = document.createElement('span');
+  dur.className = 'dur';
+  dur.textContent = opt.placed ? '已排 ✓' : (opt.span ? (opt.span === 'morning' ? '合并到开头' : '合并到结尾') : slotLabel(opt.slots));
+
+  if (opt.meta) {
+    var wrap = document.createElement('div');
+    wrap.style.flex = '1'; wrap.style.minWidth = '0';
+    var m = document.createElement('div'); m.className = 'repmeta'; m.textContent = opt.meta;
+    wrap.appendChild(nm); wrap.appendChild(m);
+    el.appendChild(wrap);
+  } else {
+    el.appendChild(nm);
+  }
+  el.appendChild(dur);
+
+  if (opt.onEdit || opt.onDel) {
+    var acts = document.createElement('div'); acts.className = 'acts';
+    if (opt.onEdit) {
+      var b1 = document.createElement('button');
+      b1.className = 'iconbtn'; b1.type = 'button'; b1.textContent = '✎'; b1.title = '编辑';
+      b1.setAttribute('aria-label', '编辑' + opt.name);
+      b1.addEventListener('click', function (e) { e.stopPropagation(); opt.onEdit(); });
+      acts.appendChild(b1);
+    }
+    if (opt.onDel) {
+      var b2 = document.createElement('button');
+      b2.className = 'iconbtn del'; b2.type = 'button'; b2.textContent = '🗑'; b2.title = '删除';
+      b2.setAttribute('aria-label', '删除' + opt.name);
+      b2.addEventListener('click', function (e) { e.stopPropagation(); opt.onDel(); });
+      acts.appendChild(b2);
+    }
+    el.appendChild(acts);
+  }
+
+  function armOrWarn() {
+    if (opt.placed) {
+      var msg = isFixedDef(opt.taskId)
+        ? '「' + opt.name + '」今天已经排过了，每天每样只排一次；要换位置先移除原来的'
+        : '「' + opt.name + '」已经排过了，每个作业只能放一次；要换时间先移除原来的';
+      toast(msg, 'err'); return;
+    }
+    armPending({ mode:'new', taskId: opt.taskId, name: opt.name, kind: opt.kind, slots: opt.slots, span: opt.span || '' });
+  }
+  el.addEventListener('dragstart', function (e) {
+    if (opt.placed) { e.preventDefault(); return; }
+    ui.drag = { mode: 'new', taskId: opt.taskId, repeatId: opt.repeatId, name: opt.name, kind: opt.kind, slots: opt.slots, span: opt.span || '' };
+    el.classList.add('dragging');
+    try { e.dataTransfer.setData('text/plain', opt.name); e.dataTransfer.effectAllowed = 'copyMove'; } catch (x) {}
+  });
+  el.addEventListener('dragend', function () { el.classList.remove('dragging'); ui.drag = null; clearHi(); });
+  el.addEventListener('click', armOrWarn);
+  el.addEventListener('keydown', function (e) {
+    if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); armOrWarn(); }
+  });
+  return el;
+}
+
+function renderLibrary() {
+  var fx = document.getElementById('fixedCards');
+  fx.innerHTML = '';
+  var defs = fixedDefsFor(ui.dayKey);
+  defs.forEach(function (f) {
+    fx.appendChild(makeCard({
+      taskId: f.id, name: f.name, kind: f.kind, slots: f.slots, span: f.span || '',
+      placed: fixedPlacedOnDay(f.id, ui.dayKey) > 0,
+      meta: f.span ? (f.span === 'morning' ? '从开头一直合并到放置处' : '从放置处一直合并到结尾') : ''
+    }));
+  });
+
+  var wk = document.getElementById('workCards');
+  wk.innerHTML = '';
+  if (!state.tasks.length) {
+    wk.innerHTML = '<div class="empty">还没有作业<br>点上面「＋ 添加作业」<br>填名字和占用时间段就行</div>';
+  } else {
+    state.tasks.forEach(function (t) {
+      wk.appendChild(makeCard({
+        taskId: t.id, name: t.name, kind: 'homework', slots: t.slots,
+        placed: homeworkPlacedCount(t.id) > 0,
+        onEdit: function () { openTaskModal(t.id); },
+        onDel: function () { delTask(t.id); }
+      }));
+    });
+  }
+
+  var rp = document.getElementById('repeatCards');
+  rp.innerHTML = '';
+  if (!state.repeats.length) {
+    rp.innerHTML = '<div class="empty">还没有重复任务<br>例如「每周一三五 19:30 跑步 2 段」<br>会自动排进对应日期</div>';
+  } else {
+    state.repeats.forEach(function (r) {
+      rp.appendChild(makeCard({
+        repeatId: r.id, name: r.name, kind: 'repeat', slots: r.slots,
+        meta: repeatMeta(r),
+        onEdit: function () { openRepeatModal(r.id); },
+        onDel: function () { delRepeat(r.id); }
+      }));
+    });
+  }
+
+  var total = fixedDefsFor(ui.dayKey).length + state.tasks.length + state.repeats.length;
+  document.getElementById('libCount').textContent = total + ' 个';
+}
+function repeatMeta(r) {
+  var ds = r.days.slice().sort(function (a, b) { return ((a + 6) % 7) - ((b + 6) % 7); })
+    .map(function (d) { return DW_SHORT[d]; }).join(' ');
+  var m = r.minutes, pre = m < 60 ? '次日' : '';
+  return '每周' + ds + ' · ' + pre + pad(Math.floor(m / 60)) + ':' + pad(m % 60) + ' 起';
+}
+
+/* SECTION: day tabs */
+function dayStatus(k) {
+  if (state.records[k]) return 'end';
+  return placementsFor(k).length ? 'plan' : 'none';
+}
+function renderDayTabs() {
+  var box = document.getElementById('dayTabs');
+  box.innerHTML = '';
+  var tk = todayKey();
+  for (var i = 0; i < 7; i++) {
+    var d = addDays(ui.weekStart, i), k = keyOf(d);
+    var b = document.createElement('button');
+    b.type = 'button';
+    b.className = 'daytab' + (k === ui.dayKey ? ' on' : '') + (isWeekend(k) ? ' we' : '') + (k === tk ? ' today' : '');
+    var st = dayStatus(k);
+    b.innerHTML =
+      '<div class="dw"><span class="sdot s-' + st + '"></span>' + DW_NAMES[d.getDay()] + '</div>' +
+      '<div class="dt">' + fmtDate(k) + '</div>';
+    b.setAttribute('aria-pressed', k === ui.dayKey ? 'true' : 'false');
+    (function (kk) { b.addEventListener('click', function () { selectDay(kk); }); })(k);
+    box.appendChild(b);
+  }
+}
+
+/* SECTION: timeline */
+function renderTimeline() {
+  var k = ui.dayKey;
+  ensureDay(k);
+  var grid = document.getElementById('tlGrid');
+  var rows = gridRows(k);
+  grid.innerHTML = '';
+  ui.cellEls = new Array(rows);
+  var frag = document.createDocumentFragment();
+  var nowIdx = -1;
+  if (k === todayKey()) {
+    var nd = new Date(), nm2 = nd.getHours() * 60 + nd.getMinutes();
+    var base = nm2 >= gridStart(k) ? nm2 : (nm2 < 60 ? nm2 + 1440 : -1);
+    if (base >= 0) { var oi = base - gridStart(k); if (oi >= 0 && oi < rows) nowIdx = Math.floor(oi / SLOT_MIN); }
+  }
+
+  for (var i = 0; i < rows; i++) {
+    var tl = document.createElement('div');
+    tl.className = 'tl-time' + (minuteAt(k, i) % 60 === 0 ? ' hour' : '') + (isNextDay(k, i) ? ' nx' : '');
+    tl.style.gridRow = String(i + 1);
+    tl.textContent = hm(k, i);
+    frag.appendChild(tl);
+
+    var c = document.createElement('div');
+    c.className = 'tl-cell' + (minuteAt(k, i) % 60 === 0 ? ' hour' : '') + (minuteAt(k, i) === 0 ? ' mid' : '') + (i === nowIdx ? ' now' : '');
+    c.style.gridRow = String(i + 1);
+    c.dataset.slot = String(i);
+    frag.appendChild(c);
+    ui.cellEls[i] = c;
+  }
+  grid.appendChild(frag);
+
+  /* 已排任务块 */
+  var occ = occupancy(k, null);
+  placementsFor(k).sort(function (a, b) { return a.startSlot - b.startSlot; }).forEach(function (p) {
+    var kind = kindOf(p), nm = displayName(p);
+    var sp = spanOf(p, rows);
+    var bad = sp.start < 0 || sp.start + sp.count > rows ||
+      (function () { for (var s = sp.start; s < sp.start + sp.count; s++) if (occ[s] && occ[s].id !== p.id) return true; return false; })();
+    var isSleep = kind === 'sleep';
+    var el = document.createElement('div');
+    el.className = 'tl-block b-' + kind + (bad ? ' conflict' : '') + (isSleep ? ' sleep' : '');
+    el.style.gridRow = (sp.start + 1) + ' / span ' + sp.count;
+    el.draggable = true;
+    el.dataset.pid = p.id;
+    el.tabIndex = 0;
+    el.setAttribute('role', 'button');
+    el.setAttribute('aria-label', nm + '，' + spanLabel(k, sp.start, sp.count) + '，点一下可以移动或移除');
+
+    var n = document.createElement('div'); n.className = 'bn';
+    n.textContent = nm;
+    if (kind !== 'rest') {   /* 休息名已含序号，不再重复显示类型标签 */
+      var tg = document.createElement('span'); tg.className = 'tag'; tg.textContent = KIND_LABEL[kind] || '';
+      n.appendChild(tg);
+    }
+    var t = document.createElement('div'); t.className = 'bt';
+    t.textContent = spanLabel(k, sp.start, sp.count) + (isSleep ? ' · 合并 ' + sp.count + ' 格' : ' · ' + p.slots + '段');
+    el.appendChild(n);
+    if (sp.count >= 2) el.appendChild(t);
+
+    var rm = document.createElement('button');
+    rm.className = 'rm'; rm.type = 'button'; rm.textContent = '✕'; rm.title = '移除';
+    rm.setAttribute('aria-label', '移除' + nm);
+    rm.addEventListener('click', function (e) { e.stopPropagation(); removePlacement(p.id); });
+    el.appendChild(rm);
+
+    el.addEventListener('dragstart', function (e) {
+      ui.drag = { mode: 'move', moveId: p.id, name: nm, kind: kind, slots: p.slots, span: p.span || '', taskId: p.taskId, repeatId: p.repeatId };
+      el.classList.add('dragging');
+      try { e.dataTransfer.setData('text/plain', nm); e.dataTransfer.effectAllowed = 'move'; } catch (x) {}
+    });
+    el.addEventListener('dragend', function () { el.classList.remove('dragging'); ui.drag = null; clearHi(); });
+    /* dragover/drop 不在块上单独处理：事件冒泡到时间轴容器后统一按指针位置定位，
+       这样拖到已有块上方也能落到正确的时间格 */
+    el.addEventListener('click', function (e) { e.stopPropagation(); onBlockClick(p); });
+    el.addEventListener('keydown', function (e) {
+      if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onBlockClick(p); }
+      else if (e.key === 'Delete' || e.key === 'Backspace') { e.preventDefault(); removePlacement(p.id); }
+    });
+    grid.appendChild(el);
+  });
+
+  renderToolbar();
+  if (ui.pending) showPending();
+}
+
+function renderToolbar() {
+  var k = ui.dayKey, rows = gridRows(k), d = parseKey(k);
+  document.getElementById('dayTitle').textContent = fmtDate(k) + ' ' + DW_NAMES[d.getDay()] + (isWeekend(k) ? '（周末）' : '（工作日）');
+  document.getElementById('dayRange').textContent =
+    hm(k, 0) + ' → 次日 ' + hm(k, rows) + ' · 共 ' + rows + ' 格（' + (rows * SLOT_MIN / 60) + ' 小时）';
+
+  var occ = occupancy(k, null);
+  var used = 0, conflict = false, i;
+  placementsFor(k).forEach(function (p) {
+    var sp = spanOf(p, rows);
+    if (sp.start < 0 || sp.start + sp.count > rows) conflict = true;
+  });
+  for (i = 0; i < rows; i++) if (occ[i]) used++;
+
+  document.getElementById('chipUsed').textContent = '已排 ' + used + ' 格';
+  document.getElementById('chipFree').textContent = '空闲 ' + (rows - used) + ' 格';
+  var ce = document.getElementById('chipEnd');
+  var rec = state.records[k];
+  if (rec) {
+    ce.style.display = '';
+    var cur = snapshotDay(k);
+    var stale = JSON.stringify(cur.items) !== JSON.stringify(rec.items);
+    ce.textContent = stale ? '已结束（安排有更新，可再点一次刷新记录）' : '已结束 ' + hm2(new Date(rec.endedAt)).slice(0, 5);
+    ce.className = 'chip ' + (stale ? 'chip-warn' : 'chip-end');
+    document.getElementById('btnEndDay').innerHTML = '↻ 更新今天记录';
+  } else {
+    ce.style.display = 'none';
+    document.getElementById('btnEndDay').innerHTML = '✓ 结束今天';
+  }
+  document.getElementById('chipWarn').style.display = conflict ? '' : 'none';
+  document.getElementById('btnClearDay').disabled = placementsFor(k).length === 0;
+}
+
+/* SECTION: highlight */
+function clearHi() {
+  ui.cellEls.forEach(function (c) { if (c) c.classList.remove('hi-ok', 'hi-bad'); });
+  ui.hiFrom = -1; ui.hiTo = -1; ui.hiAnchor = -1;
+}
+function paintHi(start, count, ok, anchor) {
+  clearHi();
+  var rows = ui.cellEls.length;
+  for (var i = start; i < Math.min(start + count, rows); i++) {
+    if (ui.cellEls[i]) ui.cellEls[i].classList.add(ok ? 'hi-ok' : 'hi-bad');
+  }
+  ui.hiFrom = start; ui.hiTo = start + count - 1; ui.hiOk = ok; ui.hiAnchor = anchor;
+}
+/* 预览某任务放到锚点格后的实际范围与可行性（睡觉块合并前后格子） */
+function previewFit(d, anchor) {
+  if (d.span) {
+    var r = checkPlace(ui.dayKey, d.span, anchor, d.slots, d.moveId || null);
+    if (r.ok) return { ok: true, start: r.start, count: r.count };
+    return { ok: false, why: r.why, start: anchor, count: d.slots };
+  }
+  var f = checkFit(ui.dayKey, anchor, d.slots, d.moveId || null);
+  return { ok: f.ok, why: f.why, start: anchor, count: d.slots };
+}
+
+/* SECTION: drag & drop */
+/* 由指针位置推算落在第几格：任务块盖在格子上时也能正确定位 */
+function slotFromEvent(e) {
+  var els = ui.cellEls;
+  if (!els.length || !els[0]) return -1;
+  var r = els[0].getBoundingClientRect();
+  if (!r.height) return -1;
+  var idx = Math.floor((e.clientY - r.top) / r.height);
+  if (idx < 0) idx = 0;
+  if (idx >= els.length) idx = els.length - 1;
+  return idx;
+}
+function onDragOver(e, slot) {
+  if (!ui.drag || slot < 0) return;
+  e.preventDefault();
+  try { e.dataTransfer.dropEffect = ui.drag.mode === 'move' ? 'move' : 'copy'; } catch (x) {}
+  var fit = previewFit(ui.drag, slot);
+  if (slot !== ui.hiAnchor || fit.ok !== ui.hiOk) paintHi(fit.start, fit.count, fit.ok, slot);
+}
+function onDrop(e, slot) {
+  if (!ui.drag || slot < 0) return;
+  e.preventDefault(); e.stopPropagation();
+  var d = ui.drag; ui.drag = null; clearHi();
+  if (d.mode === 'move') movePlacement(d.moveId, slot);
+  else placeNew(d, slot);
+}
+function onDragLeaveGrid() { if (!ui.drag) clearHi(); }
+
+/* SECTION: click-to-place (触屏) */
+function armPending(p) {
+  if (ui.pending && ui.pending.mode === 'new' && ui.pending.taskId === p.taskId) { cancelPending(); return; }
+  ui.pending = p;
+  showPending();
+  syncCardSel();
+  toast('已选中「' + p.name + '」，点右边格子放进去', 'ok');
+}
+function showPending() {
+  var bar = document.getElementById('pending');
+  if (!ui.pending) { bar.classList.remove('on'); return; }
+  document.getElementById('pendingName').textContent = ui.pending.name;
+  var pdur = document.getElementById('pendingDur');
+  if (ui.pending.span === 'morning') pdur.textContent = '（点一个格子作为起床位置，开头到此格全部合并为睡觉）';
+  else if (ui.pending.span === 'night') pdur.textContent = '（点一个格子作为入睡位置，此格到结尾全部合并为睡觉）';
+  else pdur.textContent = '（' + ui.pending.slots + ' 段 / ' + (ui.pending.slots * SLOT_MIN) + ' 分钟）';
+  var c = document.getElementById('pendingCancel');
+  c.textContent = ui.pending.mode === 'move' ? '取消移动' : '取消';
+  bar.classList.add('on');
+  var rm = document.getElementById('pendingRemove');
+  if (ui.pending.mode === 'move') {
+    if (!rm) {
+      rm = document.createElement('button');
+      rm.className = 'pbtn'; rm.id = 'pendingRemove'; rm.type = 'button'; rm.textContent = '移除该安排';
+      rm.style.background = 'rgba(229,72,77,.85)';
+      rm.addEventListener('click', function () { if (ui.pending && ui.pending.moveId) removePlacement(ui.pending.moveId); cancelPending(); });
+      bar.insertBefore(rm, c);
+    }
+  } else if (rm) { rm.parentNode.removeChild(rm); }
+}
+function cancelPending() { ui.pending = null; document.getElementById('pending').classList.remove('on'); clearHi(); syncCardSel(); }
+function syncCardSel() {
+  var cards = document.querySelectorAll('.tcard');
+  for (var i = 0; i < cards.length; i++) {
+    cards[i].classList.toggle('sel', !!ui.pending && ui.pending.mode === 'new' && cards[i].dataset.taskId === ui.pending.taskId);
+  }
+}
+function onCellEnter(slot) {
+  var d = ui.drag || ui.pending;
+  if (!d) return;
+  var fit = previewFit(d, slot);
+  if (slot !== ui.hiAnchor || fit.ok !== ui.hiOk) paintHi(fit.start, fit.count, fit.ok, slot);
+}
+function onCellClick(slot) {
+  if (ui.pending) {
+    if (ui.pending.mode === 'move') movePlacement(ui.pending.moveId, slot);
+    else placeNew(ui.pending, slot);
+    return;
+  }
+  var occ = occupancy(ui.dayKey, null);
+  if (occ[slot]) { onBlockClick(occ[slot]); return; }
+  toast('先点左边任务卡，再点这里的格子就能放进去', 'ok');
+}
+function onBlockClick(p) {
+  if (ui.pending && ui.pending.mode === 'new') {
+    var fit = previewFit(ui.pending, p.startSlot);
+    if (!fit.ok) { toast(fit.why, 'err'); return; }
+    placeNew(ui.pending, p.startSlot);
+    return;
+  }
+  if (ui.pending && ui.pending.mode === 'move' && ui.pending.moveId === p.id) { cancelPending(); return; }
+  cancelPending();
+  ui.pending = { mode: 'move', moveId: p.id, name: displayName(p), kind: kindOf(p), slots: p.slots, span: p.span || '', taskId: p.taskId, repeatId: p.repeatId };
+  showPending();
+  var els = document.querySelectorAll('.tl-block');
+  for (var i = 0; i < els.length; i++) els[i].classList.toggle('sel', els[i].dataset.pid === p.id);
+  toast('「' + nameOf(p) + '」已选中：点新格子移动，或点「移除该安排」', 'ok');
+}
+
+/* SECTION: mutations */
+/* 拖拽删除区：拖起任务时显示，拖到上面松手即删除/取消 */
+function showTrash() {
+  var tz = document.getElementById('trashZone');
+  if (!tz) return;
+  var txt = tz.querySelector('.tz-txt');
+  if (txt) txt.textContent = (ui.drag && ui.drag.mode === 'move') ? '拖到这里移除安排' : '拖到这里删除任务';
+  tz.classList.add('show');
+}
+function hideTrash() {
+  var tz = document.getElementById('trashZone');
+  if (tz) tz.classList.remove('show', 'over');
+}
+function trashDrop() {
+  var d = ui.drag;
+  hideTrash();
+  ui.drag = null; clearHi();
+  if (!d) return;
+  if (d.mode === 'move') {
+    removePlacement(d.moveId);            /* 移除格子里已排的安排 */
+  } else if (d.taskId && isHomeworkTask(d.taskId)) {
+    delTask(d.taskId);                     /* 从任务库删除作业（含确认） */
+  } else if (d.repeatId) {
+    delRepeat(d.repeatId);                 /* 从任务库删除重复任务（含确认） */
+  } else {
+    toast('固定任务（晚饭 / 休息 / 大休息）不能删除，拖走即可', 'err');
+  }
+}
+function placeNew(src, slot) {
+  var k = ui.dayKey;
+  /* 作业只能放一次：已排入则拒绝 */
+  if (isHomeworkTask(src.taskId) && homeworkPlacedCount(src.taskId) > 0) {
+    toast('「' + src.name + '」已经排过了，每个作业只能放一次', 'err');
+    cancelPending(); renderLibrary();
+    return false;
+  }
+  /* 固定任务每天每样只排一次 */
+  if (isFixedDef(src.taskId) && fixedPlacedOnDay(src.taskId, k) > 0) {
+    toast('「' + src.name + '」今天已经排过了，要换位置先移除原来的', 'err');
+    cancelPending(); renderLibrary();
+    return false;
+  }
+  var isSleep = isSleepSpan(src);
+  var p = { id: uid('p'), day: k, startSlot: slot, slots: src.slots, source: 'manual' };
+  if (isSleep) {
+    /* 睡觉块：startSlot 存锚点，span 决定合并方向，实际范围由 spanOf 计算 */
+    p.span = src.span;
+    var fitS = checkPlace(k, src.span, slot, src.slots, null);
+    if (!fitS.ok) { toast(fitS.why, 'err'); return false; }
+    p.taskId = src.taskId || null;
+    if (!src.taskId) { p.name = src.name; p.kind = src.kind; }
+    state.placements.push(p);
+    cancelPending();
+    renderTimeline(); renderDayTabs(); renderLibrary();
+    save();
+    toast('已放入 ' + src.name + ' ' + spanLabel(k, fitS.start, fitS.count) + '（合并 ' + fitS.count + ' 格）', 'ok');
+    return true;
+  }
+  var fit = checkFit(k, slot, src.slots, null);
+  if (!fit.ok) { toast(fit.why, 'err'); return false; }
+  if (src.taskId) {
+    p.taskId = src.taskId;
+  } else {
+    p.name = src.name; p.kind = src.kind;
+    /* 手动放置的重复任务同样登记，避免自动排入时再生成一个 */
+    if (src.repeatId) {
+      p.repeatId = src.repeatId;
+      var meta = dayMeta(k);
+      if (meta.skipRepeat.indexOf(src.repeatId) < 0) meta.skipRepeat.push(src.repeatId);
+    }
+  }
+  state.placements.push(p);
+  cancelPending();
+  renderTimeline(); renderDayTabs(); renderLibrary();
+  save();
+  toast('已放入 ' + spanLabel(k, slot, src.slots), 'ok');
+  return true;
+}
+function movePlacement(pid, slot) {
+  var p = findPlacement(pid);
+  if (!p) { cancelPending(); return; }
+  var k = ui.dayKey;
+  /* 睡觉块按锚点移动，合并范围随锚点变化 */
+  if (p.span) {
+    if (p.startSlot === slot && ui.pending && ui.pending.mode === 'move') { cancelPending(); renderTimeline(); return; }
+    var fitS = checkPlace(k, p.span, slot, p.slots, pid);
+    if (!fitS.ok) { toast(fitS.why, 'err'); return; }
+    p.startSlot = slot;
+    cancelPending();
+    renderTimeline(); renderDayTabs();
+    save();
+    toast('已移动到 ' + spanLabel(k, fitS.start, fitS.count) + '（合并 ' + fitS.count + ' 格）', 'ok');
+    return;
+  }
+  if (p.startSlot === slot && ui.pending && ui.pending.mode === 'move') { cancelPending(); renderTimeline(); return; }
+  var fit = checkFit(k, slot, p.slots, pid);
+  if (!fit.ok) { toast(fit.why, 'err'); return; }
+  p.startSlot = slot;
+  cancelPending();
+  renderTimeline(); renderDayTabs();
+  save();
+  toast('已移动到 ' + spanLabel(k, slot, p.slots), 'ok');
+}
+function findPlacement(pid) {
+  for (var i = 0; i < state.placements.length; i++) if (state.placements[i].id === pid) return state.placements[i];
+  return null;
+}
+function removePlacement(pid) {
+  var p = findPlacement(pid);
+  if (!p) return;
+  var nm = nameOf(p);
+  state.placements = state.placements.filter(function (x) { return x.id !== pid; });
+  /* 自动排入的重复任务被移除后，不再自动补回 */
+  if (p.repeatId) {
+    var meta = dayMeta(p.day);
+    if (meta.skipRepeat.indexOf(p.repeatId) < 0) meta.skipRepeat.push(p.repeatId);
+  }
+  if (ui.pending && ui.pending.moveId === pid) cancelPending();
+  renderTimeline(); renderDayTabs(); renderLibrary();
+  save();
+  toast('已移除「' + nm + '」');
+}
+
+function delTask(id) {
+  var t = taskById(id); if (!t) return;
+  var n = state.placements.filter(function (p) { return p.taskId === id; }).length;
+  askConfirm('删除作业', '确定删除「' + t.name + '」吗？' + (n ? '<br><b>已排在格子里的 ' + n + ' 个安排也会一起删除。</b>' : ''), '删除', true).then(function (ok) {
+    if (!ok) return;
+    state.tasks = state.tasks.filter(function (x) { return x.id !== id; });
+    state.placements = state.placements.filter(function (p) { return p.taskId !== id; });
+    renderLibrary(); renderTimeline(); renderDayTabs(); save();
+    toast('已删除「' + t.name + '」');
+  });
+}
+function delRepeat(id) {
+  var r = null;
+  state.repeats.forEach(function (x) { if (x.id === id) r = x; });
+  if (!r) return;
+  var n = state.placements.filter(function (p) { return p.repeatId === id; }).length;
+  askConfirm('删除重复任务', '确定删除「' + r.name + '」吗？<br>' + repeatMeta(r) + (n ? '<br><b>已自动排入的 ' + n + ' 个安排也会一起删除。</b>' : ''), '删除', true).then(function (ok) {
+    if (!ok) return;
+    state.repeats = state.repeats.filter(function (x) { return x.id !== id; });
+    state.placements = state.placements.filter(function (p) { return p.repeatId !== id; });
+    Object.keys(state.days).forEach(function (k) {
+      var sr = state.days[k].skipRepeat;
+      if (Array.isArray(sr)) state.days[k].skipRepeat = sr.filter(function (x) { return x !== id; });
+    });
+    renderLibrary(); renderTimeline(); renderDayTabs(); save();
+    toast('已删除重复任务「' + r.name + '」');
+  });
+}
+
+/* SECTION: task modal */
+var editingTaskId = null;
+/* 读取并夹紧时间段输入（1-16） */
+function readSlots(inputId, durId, fallback) {
+  var el = document.getElementById(inputId);
+  var n = parseInt(el.value, 10);
+  if (isNaN(n)) n = fallback;
+  if (n < 1) n = 1;
+  if (n > MAX_SLOTS) n = MAX_SLOTS;
+  return n;
+}
+function setSlots(inputId, durId, n) {
+  var el = document.getElementById(inputId);
+  el.value = String(n);
+  updateSlotsDur(inputId, durId);
+}
+function updateSlotsDur(inputId, durId) {
+  var el = document.getElementById(inputId);
+  var dur = document.getElementById(durId);
+  if (!dur) return;
+  var n = parseInt(el.value, 10);
+  if (isNaN(n) || n < 1) { dur.textContent = '请输入 1-' + MAX_SLOTS + ' 之间的整数'; dur.style.color = 'var(--danger)'; return; }
+  if (n > MAX_SLOTS) n = MAX_SLOTS;
+  dur.style.color = '';
+  dur.textContent = slotLabel(n);
+}
+function clampSlotInput(inputId, durId) {
+  var el = document.getElementById(inputId);
+  var n = parseInt(el.value, 10);
+  if (isNaN(n)) n = 1;
+  if (n < 1) n = 1;
+  if (n > MAX_SLOTS) n = MAX_SLOTS;
+  if (String(n) !== el.value) el.value = String(n);
+  updateSlotsDur(inputId, durId);
+}
+function bindSlotPickers() {
+  var pairs = [['fSlots', 'fSlotsDur'], ['rSlots', 'rSlotsDur']];
+  pairs.forEach(function (pr) {
+    var el = document.getElementById(pr[0]);
+    el.addEventListener('input', function () { updateSlotsDur(pr[0], pr[1]); });
+    el.addEventListener('blur', function () { clampSlotInput(pr[0], pr[1]); });
+    var btns = document.querySelectorAll('[data-target=' + pr[0] + ']');
+    for (var i = 0; i < btns.length; i++) {
+      (function (b) {
+        b.addEventListener('click', function () {
+          var step = +b.dataset.step;
+          var cur = parseInt(el.value, 10); if (isNaN(cur)) cur = 2;
+          var n = cur + step;
+          if (n < 1) n = 1; if (n > MAX_SLOTS) n = MAX_SLOTS;
+          setSlots(pr[0], pr[1], n);
+        });
+      })(btns[i]);
+    }
+  });
+}
+function openTaskModal(id) {
+  editingTaskId = id || null;
+  var t = id ? taskById(id) : null;
+  document.getElementById('taskTitle').textContent = t ? '编辑作业' : '添加作业';
+  var ni = document.getElementById('fName');
+  ni.value = t ? t.name : '';
+  setSlots('fSlots', 'fSlotsDur', t ? t.slots : 2);
+  openMask('maskTask');
+  setTimeout(function () { ni.focus(); }, 60);
+}
+function saveTaskModal() {
+  var name = document.getElementById('fName').value.trim();
+  if (!name) { toast('先给这个作业起个名字', 'err'); document.getElementById('fName').focus(); return; }
+  var slots = readSlots('fSlots', 'fSlotsDur', 2);
+  clampSlotInput('fSlots', 'fSlotsDur');
+  if (editingTaskId) {
+    var t = taskById(editingTaskId);
+    if (t) {
+      t.name = name;
+      var old = t.slots;
+      t.slots = slots;
+      if (old !== slots) resizePlacements(editingTaskId, slots);
+    }
+    toast('已更新「' + name + '」', 'ok');
+  } else {
+    state.tasks.push({ id: uid('t'), name: name, slots: slots, kind: 'homework' });
+    toast('已添加「' + name + '」，拖到右边格子里就能排上', 'ok');
+  }
+  closeMask('maskTask');
+  renderLibrary(); renderTimeline(); renderDayTabs(); save();
+}
+/* 改时间段数时，已排入的块尽量跟着变；放不下就保留原样 */
+function resizePlacements(taskId, slots) {
+  state.placements.forEach(function (p) {
+    if (p.taskId !== taskId) return;
+    var rows = gridRows(p.day);
+    if (p.startSlot + slots > rows) return;
+    var others = state.placements.filter(function (x) { return x.day === p.day && x.id !== p.id; });
+    var taken = {};
+    others.forEach(function (o) { for (var s = o.startSlot; s < o.startSlot + o.slots; s++) taken[s] = 1; });
+    for (var i = p.startSlot; i < p.startSlot + slots; i++) if (taken[i]) return;
+    p.slots = slots;
+  });
+}
+
+/* SECTION: repeat modal */
+var editingRepeatId = null;
+function buildRepeatForm() {
+  var dw = document.getElementById('rDays');
+  dw.innerHTML = '';
+  [1, 2, 3, 4, 5, 6, 0].forEach(function (d, i) {
+    var l = document.createElement('label');
+    l.innerHTML = '<input type="checkbox" name="rday" value="' + d + '"><span>' + DW_SHORT[d] + '</span>';
+    if (i < 5) l.querySelector('input').checked = true;
+    dw.appendChild(l);
+  });
+  var sel = document.getElementById('rTime');
+  sel.innerHTML = '';
+  var groups = [
+    { label: '上午', from: 7 * 60, to: 11 * 60 + 45 },
+    { label: '中午 · 下午', from: 12 * 60, to: 17 * 60 + 45 },
+    { label: '晚上', from: 18 * 60, to: 23 * 60 + 45 },
+    { label: '次日凌晨', from: 0, to: 45 }
+  ];
+  groups.forEach(function (g) {
+    var og = document.createElement('optgroup');
+    og.label = g.label;
+    for (var m = g.from; m <= g.to; m += SLOT_MIN) {
+      var o = document.createElement('option');
+      o.value = String(m);
+      o.textContent = (m < 60 ? '次日 ' : '') + pad(Math.floor(m / 60)) + ':' + pad(m % 60);
+      if (m === 18 * 60 + 30) o.selected = true;
+      og.appendChild(o);
+    }
+    sel.appendChild(og);
+  });
+}
+function openRepeatModal(id) {
+  editingRepeatId = id || null;
+  var r = null;
+  if (id) state.repeats.forEach(function (x) { if (x.id === id) r = x; });
+  document.getElementById('repTitle').textContent = r ? '编辑每周重复任务' : '添加每周重复任务';
+  document.getElementById('rName').value = r ? r.name : '';
+  var cbs = document.querySelectorAll('#rDays input[name=rday]');
+  for (var i = 0; i < cbs.length; i++) cbs[i].checked = r ? r.days.indexOf(+cbs[i].value) >= 0 : (+cbs[i].value >= 1 && +cbs[i].value <= 5);
+  document.getElementById('rTime').value = String(r ? r.minutes : 18 * 60 + 30);
+  setSlots('rSlots', 'rSlotsDur', r ? r.slots : 2);
+  syncSeg();
+  openMask('maskRepeat');
+  setTimeout(function () { document.getElementById('rName').focus(); }, 60);
+}
+function saveRepeatModal() {
+  var name = document.getElementById('rName').value.trim();
+  if (!name) { toast('先给这个任务起个名字', 'err'); document.getElementById('rName').focus(); return; }
+  var days = [];
+  var cbs = document.querySelectorAll('#rDays input[name=rday]');
+  for (var i = 0; i < cbs.length; i++) if (cbs[i].checked) days.push(+cbs[i].value);
+  if (!days.length) { toast('至少要选一天', 'err'); return; }
+  var minutes = +document.getElementById('rTime').value;
+  var slots = readSlots('rSlots', 'rSlotsDur', 2);
+  clampSlotInput('rSlots', 'rSlotsDur');
+
+  if (editingRepeatId) {
+    state.repeats.forEach(function (x) {
+      if (x.id !== editingRepeatId) return;
+      x.name = name; x.days = days; x.minutes = minutes; x.slots = slots;
+    });
+    /* 清掉旧的自动安排，让新设置重新生效 */
+    state.placements = state.placements.filter(function (p) { return p.repeatId !== editingRepeatId; });
+    Object.keys(state.days).forEach(function (k) {
+      var sr = state.days[k].skipRepeat;
+      if (Array.isArray(sr)) state.days[k].skipRepeat = sr.filter(function (x) { return x !== editingRepeatId; });
+    });
+    toast('已更新「' + name + '」', 'ok');
+  } else {
+    state.repeats.push({ id: uid('r'), name: name, days: days, minutes: minutes, slots: slots });
+    toast('已添加重复任务，会自动排进对应日期', 'ok');
+  }
+  closeMask('maskRepeat');
+  renderLibrary(); renderTimeline(); renderDayTabs(); save();
+}
+
+/* SECTION: records */
+function snapshotDay(k) {
+  var rows = gridRows(k);
+  var items = placementsFor(k)
+    .filter(function (p) { return p.startSlot >= 0 && p.startSlot < rows; })
+    .sort(function (a, b) { return a.startSlot - b.startSlot; })
+    .map(function (p) {
+      var sp = spanOf(p, rows);
+      return {
+        name: displayName(p), kind: kindOf(p), slots: sp.count,
+        range: spanLabel(k, sp.start, sp.count), startSlot: sp.start
+      };
+    });
+  var total = items.reduce(function (s, it) { return s + it.slots; }, 0);
+  return { items: items, totalSlots: total };
+}
+function endDay() {
+  var k = ui.dayKey;
+  ensureDay(k);
+  var snap = snapshotDay(k);
+  if (!snap.items.length) {
+    askConfirm('结束这一天', '这一天还没有安排任何任务，记录会是空的。<br>确定要结束吗？', '仍要结束').then(function (ok) {
+      if (ok) writeRecord(k, snap);
+    });
+    return;
+  }
+  writeRecord(k, snap);
+}
+function writeRecord(k, snap) {
+  state.records[k] = {
+    dayKey: k, items: snap.items, totalSlots: snap.totalSlots,
+    endedAt: Date.now(), hours: +(snap.totalSlots * SLOT_MIN / 60).toFixed(2)
+  };
+  renderTimeline(); renderDayTabs(); renderRecords(); save();
+  var h = (snap.totalSlots * SLOT_MIN / 60);
+  toast('已记录 ' + fmtDate(k) + '：' + snap.items.length + ' 项 · ' + snap.totalSlots + ' 段 · ' + h + ' 小时', 'ok');
+}
+function renderRecords() {
+  var keys = Object.keys(state.records).sort().reverse();
+  document.getElementById('recBadge').textContent = String(keys.length);
+
+  var totalSlots = 0, weekEnd = 0;
+  var wkEnd = addDays(ui.weekStart, 7);
+  keys.forEach(function (k) {
+    totalSlots += state.records[k].totalSlots || 0;
+    var d = parseKey(k);
+    if (d >= ui.weekStart && d < wkEnd) weekEnd++;
+  });
+  var stats = [
+    { k: '已记录天数', v: keys.length, u: '天' },
+    { k: '累计安排时段', v: totalSlots, u: '段' },
+    { k: '累计投入', v: (totalSlots * SLOT_MIN / 60).toFixed(1), u: '小时' },
+    { k: weekRangeLabel(ui.weekStart) + ' 已结束', v: weekEnd, u: '/7 天' }
+  ];
+  var sb = document.getElementById('stats');
+  sb.innerHTML = '';
+  stats.forEach(function (s) {
+    var d = document.createElement('div');
+    d.className = 'stat';
+    d.innerHTML = '<div class="k">' + s.k + '</div><div class="v">' + s.v + '<small>' + s.u + '</small></div>';
+    sb.appendChild(d);
+  });
+
+  var list = document.getElementById('recList');
+  list.innerHTML = '';
+  if (!keys.length) {
+    list.innerHTML = '<div class="empty" style="padding:30px 16px">还没有记录<br><br>在「时间安排」里把任务拖进格子，<br>晚上点 <b>✓ 结束今天</b>，这一天就会存到这里。</div>';
+    return;
+  }
+  keys.forEach(function (k) {
+    var r = state.records[k], d = parseKey(k);
+    var box = document.createElement('div');
+    box.className = 'rec';
+    var hd = document.createElement('div');
+    hd.className = 'rec-hd';
+    hd.innerHTML =
+      '<span class="d">' + fmtDate(k) + '</span><span class="dw">' + DW_NAMES[d.getDay()] + '</span>' +
+      '<span class="tt">' + (r.items ? r.items.length : 0) + ' 项 · ' + (r.totalSlots || 0) + ' 段 · ' +
+      ((r.totalSlots || 0) * SLOT_MIN / 60) + ' 小时</span><span class="sp"></span>';
+    var jump = document.createElement('button');
+    jump.className = 'btn btn-sm'; jump.type = 'button'; jump.textContent = '回到这天';
+    jump.addEventListener('click', function () { gotoDay(k); });
+    hd.appendChild(jump);
+    box.appendChild(hd);
+
+    var ib = document.createElement('div');
+    if (!r.items || !r.items.length) {
+      ib.className = 'rec-empty'; ib.textContent = '这天没有安排任务';
+      box.appendChild(ib);
+    } else {
+      ib.className = 'rec-items';
+      r.items.forEach(function (it) {
+        var row = document.createElement('div');
+        row.className = 'rec-item';
+        var sw = document.createElement('span');
+        sw.className = 'sw swatch-' + (it.kind || 'homework');
+        var nmEl = document.createElement('span');
+        nmEl.className = 'nm';
+        nmEl.textContent = it.name;
+        var rg = document.createElement('span');
+        rg.className = 'rg';
+        rg.textContent = it.range + ' · ' + it.slots + ' 段';
+        row.appendChild(sw); row.appendChild(nmEl); row.appendChild(rg);
+        ib.appendChild(row);
+      });
+      box.appendChild(ib);
+    }
+    list.appendChild(box);
+  });
+}
+function gotoDay(k) {
+  ui.dayKey = k;
+  ui.weekStart = mondayOf(parseKey(k));
+  cancelPending();
+  switchTab('plan');
+  renderAll();
+}
+
+/* SECTION: day / week / tab */
+function selectDay(k) {
+  if (ui.dayKey === k) return;
+  ui.dayKey = k;
+  cancelPending();
+  renderDayTabs(); renderLibrary(); renderTimeline();
+  var wrap = document.getElementById('tlWrap');
+  if (wrap) wrap.scrollTop = 0;
+}
+function shiftWeek(n) {
+  ui.weekStart = addDays(ui.weekStart, n * 7);
+  ui.dayKey = keyOf(addDays(ui.weekStart, clampDow(parseKey(ui.dayKey).getDay())));
+  cancelPending();
+  renderAll();
+}
+function clampDow(dw) { return (dw + 6) % 7; }
+function thisWeek() {
+  var t = new Date();
+  ui.weekStart = mondayOf(t);
+  ui.dayKey = todayKey();
+  cancelPending();
+  renderAll();
+}
+function switchTab(t) {
+  ui.tab = t;
+  document.getElementById('tabPlan').classList.toggle('on', t === 'plan');
+  document.getElementById('tabRec').classList.toggle('on', t === 'rec');
+  document.getElementById('viewPlan').style.display = t === 'plan' ? '' : 'none';
+  document.getElementById('viewRec').style.display = t === 'rec' ? '' : 'none';
+  if (t === 'rec') renderRecords();
+}
+function renderWeek() {
+  var t = new Date();
+  var isCur = mondayOf(t).getTime() === ui.weekStart.getTime();
+  document.getElementById('weekLabel').innerHTML = weekRangeLabel(ui.weekStart) +
+    '<em>' + (isCur ? '本周' : weekDiffLabel(ui.weekStart, mondayOf(t))) + '</em>';
+  document.getElementById('btnThisWeek').disabled = isCur;
+}
+function weekDiffLabel(a, b) {
+  var n = Math.round((a - b) / (7 * 86400000));
+  if (n === 0) return '本周';
+  return n < 0 ? (-n) + ' 周前' : n + ' 周后';
+}
+function renderAll() {
+  renderWeek(); renderDayTabs(); renderLibrary(); renderTimeline(); renderRecords();
+}
+
+/* SECTION: seg sync (兼容不支持 :has 的浏览器) */
+function syncSeg() {
+  var boxes = document.querySelectorAll('.seg input, .days input');
+  for (var i = 0; i < boxes.length; i++) {
+    var l = boxes[i].closest('label');
+    if (l) l.classList.toggle('on', boxes[i].checked);
+  }
+}
+
+/* SECTION: clear day / reset */
+function clearDay() {
+  var k = ui.dayKey, n = placementsFor(k).length;
+  if (!n) return;
+  askConfirm('清空当天安排', '会把 ' + fmtDate(k) + ' 已排好的 <b>' + n + ' 个安排</b>全部移除（任务本身保留在左边任务库）。<br>历史记录不受影响。', '清空').then(function (ok) {
+    if (!ok) return;
+    var meta = dayMeta(k);
+    state.repeats.forEach(function (r) {
+      if (r.days.indexOf(dowOf(k)) >= 0 && meta.skipRepeat.indexOf(r.id) < 0) meta.skipRepeat.push(r.id);
+    });
+    state.placements = state.placements.filter(function (p) { return p.day !== k; });
+    cancelPending();
+    renderTimeline(); renderDayTabs(); renderLibrary(); save();
+    toast('已清空 ' + fmtDate(k) + '，可以从左边重新拖任务进来');
+  });
+}
+function resetAll() {
+  askConfirm('清空全部数据', '会删除<b>所有任务、所有安排和所有历史记录</b>，恢复到刚打开时的样子。<br>这一步无法撤销。', '全部清空', true).then(function (ok) {
+    if (!ok) return;
+    try { localStorage.removeItem(STORE_KEY); } catch (e) {}
+    state = defaultState();
+    thisWeek();
+    toast('已恢复初始状态');
+  });
+}
+
+/* SECTION: events */
+function bind() {
+  document.getElementById('btnPrevWeek').addEventListener('click', function () { shiftWeek(-1); });
+  document.getElementById('btnNextWeek').addEventListener('click', function () { shiftWeek(1); });
+  document.getElementById('btnThisWeek').addEventListener('click', thisWeek);
+  document.getElementById('tabPlan').addEventListener('click', function () { switchTab('plan'); });
+  document.getElementById('tabRec').addEventListener('click', function () { switchTab('rec'); });
+  document.getElementById('btnAddWork').addEventListener('click', function () { openTaskModal(null); });
+  document.getElementById('btnAddRepeat').addEventListener('click', function () { openRepeatModal(null); });
+  document.getElementById('btnSaveTask').addEventListener('click', saveTaskModal);
+  document.getElementById('btnSaveRepeat').addEventListener('click', saveRepeatModal);
+  document.getElementById('btnEndDay').addEventListener('click', endDay);
+  document.getElementById('btnClearDay').addEventListener('click', clearDay);
+  document.getElementById('btnReset').addEventListener('click', resetAll);
+  document.getElementById('pendingCancel').addEventListener('click', cancelPending);
+
+  /* 云端同步 */
+  document.getElementById('btnSyncNow').addEventListener('click', function () { pullCloud(true); });
+  document.getElementById('btnUploadNow').addEventListener('click', function () { pushCloud(true); });
+
+  var closes = document.querySelectorAll('[data-close]');
+  for (var i = 0; i < closes.length; i++) {
+    (function (el) { el.addEventListener('click', function () { closeMask(el.dataset.close); }); })(closes[i]);
+  }
+  var masks = document.querySelectorAll('.mask');
+  for (var m = 0; m < masks.length; m++) {
+    (function (el) { el.addEventListener('mousedown', function (e) { if (e.target === el) closeMask(el.id); }); })(masks[m]);
+  }
+  document.getElementById('cfNo').addEventListener('click', function () { closeMask('maskConfirm'); });
+  document.getElementById('cfYes').addEventListener('click', function () {
+    var f = confirmCb; confirmCb = null;
+    document.getElementById('maskConfirm').classList.remove('on');
+    if (f) f(true);
+  });
+  document.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape') {
+      var on = document.querySelector('.mask.on');
+      if (on) closeMask(on.id);
+      else if (ui.pending) cancelPending();
+    }
+    if (e.key === 'Enter') {
+      if (document.getElementById('maskTask').classList.contains('on')) { e.preventDefault(); saveTaskModal(); }
+      else if (document.getElementById('maskRepeat').classList.contains('on') && e.target.tagName !== 'SELECT') { e.preventDefault(); saveRepeatModal(); }
+    }
+  });
+  document.addEventListener('change', function (e) {
+    if (e.target.matches('.seg input, .days input')) syncSeg();
+  });
+
+  /* 拖到屏幕右侧删除区 */
+  var tz = document.getElementById('trashZone');
+  document.addEventListener('dragstart', function () { if (ui.drag) showTrash(); });
+  document.addEventListener('dragend', function () { hideTrash(); });
+  tz.addEventListener('dragover', function (e) {
+    if (!ui.drag) return;
+    e.preventDefault();
+    try { e.dataTransfer.dropEffect = 'move'; } catch (x) {}
+    tz.classList.add('over');
+  });
+  tz.addEventListener('dragleave', function () { tz.classList.remove('over'); });
+  tz.addEventListener('drop', function (e) {
+    if (!ui.drag) return;
+    e.preventDefault();
+    trashDrop();
+  });
+
+  /* 时间轴：拖放 + 点选 */
+  var grid = document.getElementById('tlGrid');
+  grid.addEventListener('dragover', function (e) {
+    if (!ui.drag) return;
+    onDragOver(e, slotFromEvent(e));
+  });
+  grid.addEventListener('drop', function (e) {
+    if (!ui.drag) return;
+    e.preventDefault();
+    onDrop(e, slotFromEvent(e));
+  });
+  grid.addEventListener('dragleave', function (e) {
+    if (e.target === grid) onDragLeaveGrid();
+  });
+  grid.addEventListener('mouseover', function (e) {
+    if (!ui.drag && !ui.pending) return;
+    var slot = e.target.closest ? -1 : -1;
+    var c = e.target.closest ? e.target.closest('.tl-cell') : null;
+    if (c) { slot = +c.dataset.slot; } else if (ui.drag) { slot = slotFromEvent(e); }
+    if (slot >= 0) onCellEnter(slot);
+  });
+  grid.addEventListener('click', function (e) {
+    if (e.target.closest('.tl-block')) return;
+    var c = e.target.closest('.tl-cell');
+    if (c) onCellClick(+c.dataset.slot);
+    else if (ui.pending && ui.drag === null) onCellClick(slotFromEvent(e));
+  });
+  document.addEventListener('click', function (e) {
+    if (!ui.pending) return;
+    if (e.target.closest('#tlGrid') || e.target.closest('.tcard') || e.target.closest('#pending') ||
+        e.target.closest('.mask') || e.target.closest('.btn')) return;
+    /* 点空白处取消待放置状态 */
+    cancelPending();
+  });
+}
+
+/* SECTION: cloud sync — Upstash Redis 直连 */
+/* 前端直连 Upstash REST：每次改动自动上传，启动时自动下载最新；本机始终保留一份副本 */
+var CLOUD = {
+  url: 'https://crack-midge-202395.upstash.io',
+  token: 'gQAAAAAAAxabAAIgcDE4Nzg3MTllYWE0YjY0MWMzYTliNDc5YzQ3OTlkMTQxMA',
+  key: 'timetable-main'
+};
+var cloud = { status: 'idle', lastSync: 0, err: '', ready: false, pendingPush: false };
+var pushTimer = null;
+
+function touchRev() { state._rev = Date.now(); }
+
+/* 规整 + 迁移，供本地与云端数据共用 */
+function normalizeState(s) {
+  s.tasks = Array.isArray(s.tasks) ? s.tasks : [];
+  s.repeats = Array.isArray(s.repeats) ? s.repeats : [];
+  s.placements = Array.isArray(s.placements) ? s.placements : [];
+  s.days = s.days && typeof s.days === 'object' ? s.days : {};
+  s.records = s.records && typeof s.records === 'object' ? s.records : {};
+  return migrate(s);
+}
+
+async function redis(path, method, body) {
+  var opt = { method: method || 'GET', headers: { 'Authorization': 'Bearer ' + CLOUD.token } };
+  if (body !== undefined) { opt.headers['Content-Type'] = 'text/plain'; opt.body = body; }
+  var res = await fetch(CLOUD.url + path, opt);
+  if (!res.ok) throw new Error('HTTP ' + res.status);
+  return res.json();
+}
+async function cloudGet() {
+  var d = await redis('/get/' + CLOUD.key + '?_=' + Date.now());
+  if (!d || d.result == null) return null;
+  try { return JSON.parse(d.result); } catch (e) { return null; }
+}
+async function cloudSet(obj) {
+  await redis('/set/' + CLOUD.key, 'POST', JSON.stringify(obj));
+}
+
+function setCloudStatus(status, err) {
+  cloud.status = status;
+  if (err !== undefined) cloud.err = err;
+  if (status === 'ok' || status === 'empty') cloud.lastSync = Date.now();
+  renderCloud();
+}
+function renderCloud() {
+  var badge = document.getElementById('fileState');
+  var box = document.getElementById('fileBox');
+  if (!badge || !box) return;
+  var map = { idle:'未同步', pulling:'下载中…', pushing:'上传中…', ok:'云端已同步', empty:'云端已初始化', err:'连接失败' };
+  badge.textContent = map[cloud.status] || '云同步';
+  box.innerHTML = '';
+  var item = document.createElement('div');
+  item.className = 'fileitem' + (cloud.status === 'err' ? ' warn' : '');
+  var dot = document.createElement('span');
+  dot.className = 'fi-dot';
+  if (cloud.status === 'err') dot.style.background = 'var(--danger)';
+  else if (cloud.status === 'pulling' || cloud.status === 'pushing' || cloud.status === 'idle') dot.style.background = 'var(--warn)';
+  var txt = document.createElement('span');
+  if (cloud.status === 'err') txt.innerHTML = '<b>云端连接失败</b><br>' + (cloud.err || '请检查网络后点「↻ 立即同步」重试');
+  else if (cloud.lastSync) txt.innerHTML = '最近同步 <b>' + hm2(new Date(cloud.lastSync)) + '</b><br>改动自动上传，换设备打开自动下载';
+  else txt.innerHTML = '正在连接云端…';
+  item.appendChild(dot); item.appendChild(txt);
+  box.appendChild(item);
+}
+
+/* 从云端下载：云端更新则采用云端，本机更新则回推，云端为空则用本机初始化 */
+async function pullCloud(manual) {
+  setCloudStatus('pulling');
+  try {
+    var remote = await cloudGet();
+    if (!remote) {
+      touchRev();
+      await cloudSet(state);
+      cloud.ready = true;
+      setCloudStatus('empty');
+      if (manual) toast('云端原本为空，已用本机数据初始化', 'ok');
+      return;
+    }
+    var rs = normalizeState(remote);
+    if ((rs._rev || 0) >= (state._rev || 0)) {
+      state = rs;
+      try { localStorage.setItem(STORE_KEY, JSON.stringify(state)); } catch (e) {}
+      ui.weekStart = mondayOf(new Date());
+      ui.dayKey = todayKey();
+      cancelPending();
+      renderAll();
+    } else {
+      touchRev();
+      await cloudSet(state);
+    }
+    cloud.ready = true;
+    setCloudStatus('ok');
+    if (manual) toast('已从云端同步最新安排', 'ok');
+    if (cloud.pendingPush) { cloud.pendingPush = false; pushCloud(); }
+  } catch (e) {
+    cloud.ready = true;
+    setCloudStatus('err', e && e.message);
+    if (manual) toast('云端下载失败：' + (e && e.message), 'err');
+  }
+}
+
+/* 改动后防抖上传；未就绪则挂起，等下载完成再补传 */
+function scheduleCloudPush() {
+  clearTimeout(pushTimer);
+  if (!cloud.ready) { cloud.pendingPush = true; return; }
+  pushTimer = setTimeout(function () { pushCloud(); }, 800);
+}
+async function pushCloud(manual) {
+  if (!cloud.ready && !manual) { cloud.pendingPush = true; return; }
+  setCloudStatus('pushing');
+  try {
+    touchRev();
+    await cloudSet(state);
+    setCloudStatus('ok');
+    if (manual) toast('已上传到云端', 'ok');
+  } catch (e) {
+    setCloudStatus('err', e && e.message);
+    if (manual) toast('云端上传失败：' + (e && e.message), 'err');
+  }
+}
+
+/* SECTION: init */
+function init() {
+  state = load();
+  buildRepeatForm();
+  bindSlotPickers();
+  var t = new Date();
+  ui.weekStart = mondayOf(t);
+  ui.dayKey = todayKey();
+  bind();
+  syncSeg();
+  renderAll();
+  renderCloud();
+  document.getElementById('saveText').textContent = '已自动保存 ' + hm2(new Date());
+  /* 迁移后落盘一次 */
+  try { localStorage.setItem(STORE_KEY, JSON.stringify(state)); } catch (e) {}
+  /* 启动时从云端拉取最新安排 */
+  pullCloud(false);
+}
+if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
+else init();
+
+})();
+
+</script>
 </body>
 </html>
