@@ -34,6 +34,8 @@
   --c-sleep:#6b5bd6;  --c-sleep-bg:#efeaff;  --c-sleep-bd:#cfc4f6;
   --c-breakfast:#d98600; --c-breakfast-bg:#fff2dd; --c-breakfast-bd:#f4d9a3;
   --c-lunch:#c2410c;  --c-lunch-bg:#ffeee5;  --c-lunch-bd:#f6cbb2;
+  --c-commute:#4a6572; --c-commute-bg:#eaf0f3; --c-commute-bd:#c3d2d9;
+  --c-guitar:#a3541a; --c-guitar-bg:#fdf0e6;  --c-guitar-bd:#f0d3ba;
 }
 *{box-sizing:border-box}
 html,body{margin:0;padding:0}
@@ -146,6 +148,7 @@ input,select{font:inherit;color:inherit}
 .k-repeat{border-left-color:var(--c-rep)}
 .k-sleep{border-left-color:var(--c-sleep)} .k-breakfast{border-left-color:var(--c-breakfast)}
 .k-lunch{border-left-color:var(--c-lunch)}
+.k-commute{border-left-color:var(--c-commute)} .k-guitar{border-left-color:var(--c-guitar)}
 .repmeta{font-size:11px;color:var(--muted);margin-top:2px;line-height:1.4}
 .empty{
   text-align:center;padding:16px 10px;color:var(--muted-2);font-size:12.5px;
@@ -484,12 +487,12 @@ input,select{font:inherit;color:inherit}
             <div class="cards" id="fixedCards"></div>
           </div>
           <div class="grp">
-            <p class="grp-t">今天的任务</p>
-            <div class="cards" id="workCards"></div>
-          </div>
-          <div class="grp">
             <p class="grp-t">重复任务（每天共用）</p>
             <div class="cards" id="repeatCards"></div>
+          </div>
+          <div class="grp">
+            <p class="grp-t">今天的任务</p>
+            <div class="cards" id="workCards"></div>
           </div>
         </div>
       </div>
@@ -512,13 +515,14 @@ input,select{font:inherit;color:inherit}
           <div style="font-size:12px;color:var(--muted);line-height:1.85">
             1. 从上面把任务<b>拖到右边格子</b>里；手机 / 触屏<b>先点卡片再点格子</b><br>
             2. <b>今天的任务</b>只属于当天，每天各自添加，每天每个只能排一次<br>
-            3. <b>小休息、大休息</b>当天可重复用多次；<b>吃饭、睡觉</b>每天只能各排一次<br>
-            4. <b>重复任务</b>每天共用，只设名称 / 时长 / 每日次数，时间自己拖，排满即变灰<br>
+            3. <b>小休息、大休息、通勤、弹吉他</b>当天可重复用多次；<b>吃饭、睡觉</b>每天只能各排一次<br>
+            4. <b>重复任务</b>每天共用，只设名称 / 时长 / 每日次数，排满即变灰<br>
             5. <b>早晨睡觉</b>点一格=起床位置（开头到此格合并）；<b>晚上睡觉</b>点一格=入睡位置（此格到结尾合并）<br>
             6. <b>休息日</b>会多出早饭、午饭；调休时用上方「工作日 / 休息日」手动指定<br>
             7. 区块颜色自动分配，<b>相邻区块不会同色</b><br>
             8. 点已排好的块可<b>移动</b>或<b>移除</b>；拖到屏幕最右边的 🗑 即可删除<br>
-            9. 晚上点<b>结束今天</b>存进记录；所有改动<b>随时自动保存并同步云端</b>
+            9. 晚上点<b>结束今天</b>存进记录；所有改动<b>随时自动保存并同步云端</b><br>
+            10. 记录里的<b>「累计投入」不含作息</b>：通勤、睡觉、吃饭、休息、弹吉他都不算小时数
           </div>
         </div>
       </div>
@@ -684,20 +688,30 @@ var PALETTE_LEN = 8;              /* 区块配色数量：需 > 4 才能保证�
 
 var KIND_LABEL = {
   dinner:'晚饭', rest:'小休息', bigrest:'大休息', homework:'任务', repeat:'重复',
-  sleep:'睡觉', breakfast:'早饭', lunch:'午饭'
+  sleep:'睡觉', breakfast:'早饭', lunch:'午饭', commute:'通勤', guitar:'弹吉他'
 };
 
 /* 固定任务：when=all 每天都可用，when=rest 仅休息日；
    multi=true 表示当天可重复使用多次；span=morning/night 为睡觉合并块 */
 var FIXED_DEFS = [
   { id:'fx-morning-sleep', name:'早晨睡觉', slots:1, kind:'sleep',     span:'morning', when:'all',  multi:false },
-  { id:'fx-night-sleep',   name:'晚上睡觉', slots:1, kind:'sleep',     span:'night',   when:'all',  multi:false },
+  { id:'fx-commute',       name:'通勤',     slots:1, kind:'commute',   when:'all',    multi:true  },
   { id:'fx-breakfast',     name:'早饭',     slots:2, kind:'breakfast', when:'rest',   multi:false },
   { id:'fx-lunch',         name:'午饭',     slots:3, kind:'lunch',     when:'rest',   multi:false },
   { id:'fx-dinner',        name:'晚饭',     slots:2, kind:'dinner',    when:'all',    multi:false },
   { id:'fx-smallrest',     name:'小休息',   slots:1, kind:'rest',      when:'all',    multi:true  },
-  { id:'fx-big',           name:'大休息',   slots:3, kind:'bigrest',   when:'all',    multi:true  }
+  { id:'fx-big',           name:'大休息',   slots:3, kind:'bigrest',   when:'all',    multi:true  },
+  { id:'fx-guitar',        name:'弹吉他',   slots:2, kind:'guitar',    when:'all',    multi:true  },
+  { id:'fx-night-sleep',   name:'晚上睡觉', slots:1, kind:'sleep',     span:'night',   when:'all',  multi:false }
 ];
+
+/* 通勤、睡觉、吃饭、休息、弹吉他属于生活作息，不计入「累计投入」小时数 */
+var NON_COUNTED_KINDS = {
+  commute:1, sleep:1, breakfast:1, lunch:1, dinner:1, rest:1, bigrest:1, guitar:1
+};
+function isCountedKind(kind) { return !NON_COUNTED_KINDS[kind]; }
+/* 可多次使用、需要按时间顺序编号的类型 */
+var MULTI_NUMBERED = { rest:'小休息', bigrest:'大休息', commute:'通勤', guitar:'弹吉他' };
 
 function fixedDefById(id) {
   for (var i = 0; i < FIXED_DEFS.length; i++) if (FIXED_DEFS[i].id === id) return FIXED_DEFS[i];
@@ -934,11 +948,11 @@ function kindOf(p) {
   if (p.repeatId) return 'repeat';
   return p.kind || 'homework';
 }
-/* 可多次使用的固定任务（小休息/大休息）按时间顺序编号：小休息1、小休息2…… */
+/* 可多次使用的固定任务按时间顺序编号：小休息1、小休息2、通勤1、通勤2…… */
 function displayName(p) {
   var kind = kindOf(p);
-  if (kind === 'rest' || kind === 'bigrest') {
-    var base = kind === 'rest' ? '小休息' : '大休息';
+  var base = MULTI_NUMBERED[kind];
+  if (base) {
     var same = placementsFor(p.day).filter(function (x) { return kindOf(x) === kind; })
       .sort(function (a, b) { return a.startSlot - b.startSlot; });
     if (same.length > 1) {
@@ -1168,7 +1182,7 @@ function renderLibrary() {
   var rp = document.getElementById('repeatCards');
   rp.innerHTML = '';
   if (!state.repeats.length) {
-    rp.innerHTML = '<div class="empty">还没有重复任务<br>重复任务每天共用，只设名称 / 时长 / 每日次数<br>具体时间自己拖进格子</div>';
+    rp.innerHTML = '<div class="empty">还没有重复任务<br>重复任务每天共用，只设名称 / 时长 / 每日次数</div>';
   } else {
     state.repeats.forEach(function (r) {
       var cnt = repeatCountOnDay(r.id, k);
@@ -1177,7 +1191,7 @@ function renderLibrary() {
         repeatId: r.id, name: r.name, kind: 'repeat', slots: r.slots,
         placed: full,
         placedMsg: '「' + r.name + '」今天的 ' + (r.perDay || 1) + ' 次已经排满了',
-        meta: '每天 ' + (r.perDay || 1) + ' 次' + (cnt ? ' · 今天已排 ' + cnt + ' 次' : ' · 时间自己拖'),
+        meta: '每天 ' + (r.perDay || 1) + ' 次' + (cnt ? ' · 今天已排 ' + cnt + ' 次' : ''),
         onEdit: function () { openRepeatModal(r.id); },
         onDel: function () { delRepeat(r.id); }
       }));
@@ -1327,7 +1341,7 @@ function renderTimeline() {
 
     var n = document.createElement('div'); n.className = 'bn';
     n.textContent = nm;
-    if (kind !== 'rest' && kind !== 'bigrest') {
+    if (!MULTI_NUMBERED[kind]) {   /* 名称已含编号的类型（小休息/大休息/通勤/弹吉他）不再重复显示标签 */
       var tg = document.createElement('span'); tg.className = 'tag'; tg.textContent = KIND_LABEL[kind] || '';
       n.appendChild(tg);
     }
@@ -1784,7 +1798,7 @@ function saveRepeatModal() {
     toast('已更新「' + name + '」', 'ok');
   } else {
     state.repeats.push({ id: uid('r'), name: name, slots: slots, perDay: perDay });
-    toast('已添加重复任务，每天可排 ' + perDay + ' 次，时间自己拖', 'ok');
+    toast('已添加重复任务，每天可排 ' + perDay + ' 次', 'ok');
   }
   closeMask('maskRepeat');
   renderLibrary(); renderTimeline(); renderDayTabs(); save();
@@ -1821,7 +1835,15 @@ function snapshotDay(k) {
       };
     });
   var total = items.reduce(function (s, it) { return s + it.slots; }, 0);
-  return { items: items, totalSlots: total };
+  /* counted = 计入「累计投入」的段数：排除通勤/睡觉/吃饭/休息/弹吉他 */
+  var counted = items.reduce(function (s, it) { return s + (isCountedKind(it.kind) ? it.slots : 0); }, 0);
+  return { items: items, totalSlots: total, countedSlots: counted };
+}
+/* 兼容旧记录：没有 countedSlots 字段时按 items 反算 */
+function countedOf(rec) {
+  if (typeof rec.countedSlots === 'number') return rec.countedSlots;
+  if (!Array.isArray(rec.items)) return rec.totalSlots || 0;
+  return rec.items.reduce(function (s, it) { return s + (isCountedKind(it.kind) ? (it.slots || 0) : 0); }, 0);
 }
 function endDay() {
   var k = ui.dayKey;
@@ -1837,27 +1859,30 @@ function endDay() {
 }
 function writeRecord(k, snap) {
   state.records[k] = {
-    dayKey: k, items: snap.items, totalSlots: snap.totalSlots,
+    dayKey: k, items: snap.items, totalSlots: snap.totalSlots, countedSlots: snap.countedSlots,
     endedAt: Date.now(), dayType: dayTypeOf(k)
   };
   renderTimeline(); renderDayTabs(); renderRecords(); save();
-  var h = snap.totalSlots * SLOT_MIN / 60;
-  toast('已记录 ' + fmtDate(k) + '：' + snap.items.length + ' 项 · ' + snap.totalSlots + ' 段 · ' + h + ' 小时', 'ok');
+  var ch = snap.countedSlots * SLOT_MIN / 60;
+  var excluded = snap.totalSlots - snap.countedSlots;
+  toast('已记录 ' + fmtDate(k) + '：' + snap.items.length + ' 项 · 投入 ' + ch + ' 小时' +
+    (excluded > 0 ? '（另有 ' + excluded + ' 段作息不计入）' : ''), 'ok');
 }
 function renderRecords() {
   var keys = Object.keys(state.records).sort().reverse();
   document.getElementById('recBadge').textContent = String(keys.length);
 
-  var totalSlots = 0, weekEnd = 0, wkEnd = addDays(ui.weekStart, 7);
+  var totalSlots = 0, countedSlots = 0, weekEnd = 0, wkEnd = addDays(ui.weekStart, 7);
   keys.forEach(function (k) {
     totalSlots += state.records[k].totalSlots || 0;
+    countedSlots += countedOf(state.records[k]);
     var d = parseKey(k);
     if (d >= ui.weekStart && d < wkEnd) weekEnd++;
   });
   var stats = [
     { k: '已记录天数', v: keys.length, u: '天' },
     { k: '累计安排时段', v: totalSlots, u: '段' },
-    { k: '累计投入', v: (totalSlots * SLOT_MIN / 60).toFixed(1), u: '小时' },
+    { k: '累计投入（不含作息）', v: (countedSlots * SLOT_MIN / 60).toFixed(1), u: '小时' },
     { k: weekRangeLabel(ui.weekStart) + ' 已结束', v: weekEnd, u: '/7 天' }
   ];
   var sb = document.getElementById('stats');
@@ -1881,11 +1906,13 @@ function renderRecords() {
     box.className = 'rec';
     var hd = document.createElement('div');
     hd.className = 'rec-hd';
+    var cd = countedOf(r), td = r.totalSlots || 0;
     hd.innerHTML =
       '<span class="d">' + fmtDate(k) + '</span><span class="dw">' + DW_NAMES[d.getDay()] + '</span>' +
       '<span class="tt">' + (r.dayType === 'rest' ? '休息日' : '工作日') + ' · ' +
-      (r.items ? r.items.length : 0) + ' 项 · ' + (r.totalSlots || 0) + ' 段 · ' +
-      ((r.totalSlots || 0) * SLOT_MIN / 60) + ' 小时</span><span class="sp"></span>';
+      (r.items ? r.items.length : 0) + ' 项 · ' + td + ' 段 · 投入 ' +
+      (cd * SLOT_MIN / 60) + ' 小时' + ((td - cd) > 0 ? '（另 ' + (td - cd) + ' 段作息）' : '') +
+      '</span><span class="sp"></span>';
     var jump = document.createElement('button');
     jump.className = 'btn btn-sm'; jump.type = 'button'; jump.textContent = '回到这天';
     jump.addEventListener('click', function () { gotoDay(k); });
