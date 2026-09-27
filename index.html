@@ -97,6 +97,7 @@ input,select{font:inherit;color:inherit}
 
 /* SECTION: layout */
 .main{display:grid;grid-template-columns:302px minmax(0,1fr);gap:12px;align-items:start}
+.content{display:flex;flex-direction:column;gap:12px;min-width:0}
 
 /* SECTION: sidebar */
 .panel{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow-s)}
@@ -130,7 +131,9 @@ input,select{font:inherit;color:inherit}
 .tcard.placed:hover{box-shadow:none;border-color:var(--line);background:var(--surface-2)}
 .tcard.placed .nm{color:var(--muted);text-decoration:line-through;text-decoration-color:#b9c2d2}
 .tcard.placed .dur{color:var(--ok);border-color:#bfe6d3;background:#eaf8f1;font-weight:700}
-.tcard .nm{font-weight:650;font-size:13px;flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.tcard .nm{font-weight:650;font-size:13px;flex:1;min-width:0;display:flex;align-items:center;white-space:nowrap}
+.tcard .nm .nmt{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0}
+.tcard .nm .ncbadge{flex:0 0 auto}
 .tcard .dur{
   font-size:11px;color:var(--muted);background:var(--surface-2);border:1px solid var(--line);
   border-radius:6px;padding:1px 6px;white-space:nowrap;font-variant-numeric:tabular-nums;flex:0 0 auto;
@@ -150,6 +153,12 @@ input,select{font:inherit;color:inherit}
 .k-lunch{border-left-color:var(--c-lunch)}
 .k-commute{border-left-color:var(--c-commute)} .k-guitar{border-left-color:var(--c-guitar)}
 .repmeta{font-size:11px;color:var(--muted);margin-top:2px;line-height:1.4}
+.ncbadge{
+  font-size:9.5px;font-weight:700;color:var(--muted);background:var(--surface-2);
+  border:1px solid var(--line);border-radius:5px;padding:0 4px;margin-left:5px;
+  letter-spacing:.3px;flex:0 0 auto;vertical-align:1px;
+}
+.tcard.placed .ncbadge{opacity:.7}
 .empty{
   text-align:center;padding:16px 10px;color:var(--muted-2);font-size:12.5px;
   border:1px dashed var(--line);border-radius:10px;background:var(--surface-2);line-height:1.7;
@@ -380,6 +389,17 @@ input,select{font:inherit;color:inherit}
 .fileitem .fi-x{margin-left:auto;border:0;background:transparent;color:inherit;opacity:.6;font-size:13px;padding:0 2px}
 .fileitem .fi-x:hover{opacity:1}
 .modal-msg{font-size:13px;color:var(--text);line-height:1.7;margin:0 0 6px}
+.field .chk{
+  display:flex;align-items:flex-start;gap:9px;cursor:pointer;
+  border:1px solid var(--line);border-radius:9px;padding:9px 11px;background:var(--surface);
+  transition:.15s;margin:0;font-size:12.5px;font-weight:400;color:var(--text);
+}
+.field .chk:hover{border-color:#c8d3e6;background:#fbfcfe}
+.chk input{width:17px;height:17px;margin:1px 0 0;flex:0 0 17px;accent-color:var(--primary);cursor:pointer}
+.chk span{display:flex;flex-direction:column;gap:1px;min-width:0}
+.chk b{font-size:12.5px;font-weight:650;color:var(--text)}
+.chk i{font-style:normal;font-size:11px;color:var(--muted-2);line-height:1.5}
+.field .chk:has(input:checked){border-color:var(--primary);background:var(--primary-soft)}
 
 /* SECTION: pending bar */
 .pending{
@@ -428,6 +448,7 @@ input,select{font:inherit;color:inherit}
 .foot button:hover{color:var(--danger)}
 
 /* SECTION: responsive */
+/* 平板 / 窄屏：单栏，任务库在上、时间表在下，整页滚动 */
 @media (max-width:960px){
   :root{--row-h:32px}
   .app{padding:10px 10px 96px}
@@ -445,11 +466,188 @@ input,select{font:inherit;color:inherit}
   .daytab{min-width:74px;padding:7px 9px}
   .addrow{grid-template-columns:1fr 1fr}
 }
-@media (max-width:420px){
-  .tabs{width:100%}
-  .tab{flex:1;padding:7px 8px;text-align:center}
-  .toolbar{gap:7px;padding:10px 12px}
-  .toolbar .sp{margin-left:0;width:100%}
+
+/* 手机：整屏不滚动，上半是任务、下半是时间表，两块各自滚动，界面整体缩小 */
+@media (max-width:640px){
+  :root{--row-h:26px}
+  html,body{height:100%;overflow:hidden}
+  body{font-size:13px}
+
+  /* 外壳撑满一屏，内部纵向排布 */
+  .app{
+    max-width:none;margin:0;
+    padding:7px 7px calc(7px + env(safe-area-inset-bottom, 0px));
+    padding-left:calc(7px + env(safe-area-inset-left, 0px));
+    padding-right:calc(7px + env(safe-area-inset-right, 0px));
+    height:100vh;height:100dvh;
+    display:flex;flex-direction:column;gap:7px;overflow:hidden;
+  }
+  /* 顶栏压缩 */
+  .topbar{
+    flex:0 0 auto;padding:7px 10px;gap:7px;margin-bottom:0;border-radius:12px;
+  }
+  .brand{font-size:14px;gap:7px}
+  .brand .logo{width:26px;height:26px;flex:0 0 26px;border-radius:8px;font-size:14px}
+  .brand small{display:none}
+  .weeknav{margin-left:0;width:100%;gap:4px;justify-content:space-between;order:3}
+  .weeknav .btn{flex:1 1 auto;justify-content:center;padding:4px 6px;font-size:11.5px;border-radius:7px}
+  .weeklabel{padding:0 2px;font-size:11px;flex:0 0 auto}
+  .weeklabel em{display:none}
+  .saveinfo{
+    position:static;margin-left:auto;padding:2px 7px;font-size:10px;
+    border-radius:999px;background:var(--surface-2);flex:0 0 auto;order:2;
+  }
+  .saveinfo .dot{width:6px;height:6px;flex:0 0 6px}
+
+  /* 主区：上半任务库、下半时间表，各自滚动 */
+  .main{
+    flex:1 1 auto;min-height:0;display:flex;flex-direction:column;gap:7px;overflow:hidden;
+  }
+  /* 上半：任务区（可独立滚动） */
+  .sidebar{
+    position:static;order:-1;flex:0 0 38%;min-height:0;
+    max-height:none;overflow-y:auto;overflow-x:hidden;
+    gap:7px;padding:0 2px 4px 0;
+    -webkit-overflow-scrolling:touch;overscroll-behavior:contain;
+  }
+  .sidebar .panel{border-radius:12px}
+  .panel-hd{padding:8px 11px 7px}
+  .panel-hd h2{font-size:12.5px}
+  .panel-hd .cnt{font-size:10.5px;padding:1px 6px}
+  .panel-bd{padding:9px 10px 11px}
+  .grp{margin-bottom:10px}
+  .grp-t{font-size:10.5px;margin:0 0 6px 2px}
+  .addrow{gap:6px;margin-bottom:9px}
+  .btn{padding:6px 9px;font-size:12px;border-radius:8px}
+  .btn-sm{padding:4px 8px;font-size:11.5px;border-radius:7px}
+  .cards{gap:5px}
+  .tcard{padding:6px 8px;border-radius:9px;gap:7px;border-left-width:3px}
+  .tcard .nm{font-size:12px}
+  .tcard .dur{font-size:10px;padding:1px 5px}
+  .tcard .acts{opacity:1}
+  .iconbtn{width:20px;height:20px;font-size:11px}
+  .repmeta{font-size:10px}
+  .ncbadge{font-size:9px;padding:0 3px;margin-left:4px}
+  .empty{padding:11px 8px;font-size:11px;line-height:1.6}
+  .hint{font-size:10.5px;padding:6px 8px;margin:2px 0 9px;line-height:1.6}
+  /* 手机上「怎么用」说明折叠，省出空间给任务和时间表 */
+  .sidebar .panel:nth-child(3){display:none}
+  /* 云端同步状态保留，但压缩显示 */
+  .filebox{gap:4px;margin-bottom:0}
+  .fileitem{font-size:10.5px;padding:5px 7px;gap:6px;border-radius:7px}
+  .fileitem .fi-dot{width:6px;height:6px;flex:0 0 6px}
+  .filerow{gap:6px;margin-top:6px}
+  .filerow .btn{padding:5px 7px;font-size:11px}
+
+  /* 下半：时间表区（可独立滚动） */
+  .content{flex:1 1 auto;min-height:0;gap:7px;overflow:hidden}
+  .tabs{width:100%;flex:0 0 auto;padding:2px;border-radius:10px}
+  .tab{flex:1;padding:6px 6px;font-size:12px;text-align:center;border-radius:7px}
+  .tab .badge{margin-left:4px;font-size:10px;padding:0 5px}
+  #viewPlan,#viewRec{flex:1 1 auto;min-height:0;display:flex;flex-direction:column;gap:7px;overflow:hidden}
+  .daytabs{
+    flex:0 0 auto;gap:5px;padding:1px 1px 5px;margin-bottom:0;
+    -webkit-overflow-scrolling:touch;overscroll-behavior:contain;
+  }
+  .daytab{min-width:58px;padding:5px 7px;border-radius:9px}
+  .daytab .dw{font-size:11.5px;gap:4px}
+  .daytab .dt{font-size:10px}
+  .daytab .ob{font-size:8.5px;padding:0 3px}
+  .daytab.today::after{top:-6px;right:5px;font-size:9px;padding:0 4px}
+
+  .content .panel{
+    flex:1 1 auto;min-height:0;display:flex;flex-direction:column;overflow:hidden;border-radius:12px;
+  }
+  /* 工具栏：单行横向可滚，不占太多高度 */
+  .toolbar{
+    flex:0 0 auto;gap:6px;padding:7px 9px;flex-wrap:nowrap;overflow-x:auto;
+    -webkit-overflow-scrolling:touch;scrollbar-width:none;
+  }
+  .toolbar::-webkit-scrollbar{display:none}
+  .toolbar .ttl{font-size:12px;flex:0 0 auto}
+  .toolbar .sub{font-size:10.5px;flex:0 0 auto}
+  .toolbar .sp{display:none}
+  .toolbar .btn{flex:0 0 auto}
+  .dtctl{flex:0 0 auto;border-radius:7px}
+  .dtctl button{padding:3px 7px;font-size:10.5px}
+  .chip{font-size:10.5px;padding:2px 7px;flex:0 0 auto}
+
+  /* 时间表格子：占满剩余高度，内部滚动 */
+  .tl-wrap{
+    flex:1 1 auto;min-height:0;max-height:none;overflow-y:auto;overflow-x:hidden;
+    padding:7px 8px 26px;
+    -webkit-overflow-scrolling:touch;overscroll-behavior:contain;
+  }
+  .tl-grid{grid-template-columns:40px minmax(0,1fr);min-width:0}
+  .tl-time{padding-right:5px;font-size:9.5px}
+  .tl-block{margin:1px 4px 1px 1px;border-radius:6px;padding:2px 6px}
+  .tl-block .bn{font-size:11px;gap:4px}
+  .tl-block .bt{font-size:9.5px}
+  .tl-block .tag{font-size:8.5px;padding:0 3px}
+  .tl-block .rm{
+    display:grid;top:1px;right:1px;width:17px;height:17px;font-size:10px;border-radius:5px;
+  }
+  .tl-cell.now::before{font-size:8px}
+
+  /* 记录页：内部滚动 */
+  .rec-head{padding:10px 12px;flex:0 0 auto}
+  .rec-head h2{font-size:13.5px}
+  .stats{grid-template-columns:repeat(2,minmax(0,1fr));gap:7px;margin-top:9px}
+  .stat{padding:8px 10px;border-radius:9px}
+  .stat .k{font-size:10.5px}
+  .stat .v{font-size:17px}
+  .stat .v small{font-size:10.5px}
+  .rec-list{
+    flex:1 1 auto;min-height:0;overflow-y:auto;padding:10px 12px 26px;gap:9px;
+    -webkit-overflow-scrolling:touch;overscroll-behavior:contain;
+  }
+  .rec{border-radius:10px}
+  .rec-hd{padding:8px 10px;gap:7px}
+  .rec-hd .d{font-size:12px}
+  .rec-hd .tt{font-size:10.5px}
+  .rec-items{padding:7px 10px 9px;gap:3px}
+  .rec-item{font-size:11.5px;gap:7px}
+  .rec-item .rg{font-size:10.5px}
+
+  /* 浮动元素：避开两区，不遮挡内容 */
+  .foot{flex:0 0 auto;margin:0;text-align:center;line-height:1.5}
+  .foot .foot-t{display:none}
+  .foot button{font-size:10.5px;padding:2px 4px}
+  .pending{
+    bottom:10px;padding:7px 8px 7px 13px;font-size:12px;gap:9px;
+    max-width:calc(100vw - 18px);border-radius:999px;
+  }
+  .pending .pbtn{padding:4px 10px;font-size:11.5px}
+  .trashzone{
+    top:auto;bottom:56px;right:8px;transform:translate(0,140%);
+    width:104px;padding:0;
+  }
+  .trashzone.show{transform:translate(0,0)}
+  .tz-card{padding:13px 9px;border-radius:12px;gap:5px;font-size:11px}
+  .tz-ico{font-size:22px}
+  .toast{top:10px;font-size:12px;padding:8px 13px;max-width:calc(100vw - 22px)}
+  .mask{padding:12px;align-items:flex-end}
+  .modal{max-width:none;border-radius:14px 14px 0 0;max-height:86dvh}
+  .modal-hd{padding:13px 15px 10px}
+  .modal-hd h3{font-size:14.5px}
+  .modal-bd{padding:12px 15px 2px}
+  .modal-ft{padding:11px 15px 15px}
+  .field{margin-bottom:12px}
+  .field label{font-size:12px}
+  .slotpick .sbtn{width:40px;font-size:18px}
+  .slotpick input[type=number]{font-size:16px;padding:8px 5px}
+}
+
+@media (max-width:380px){
+  .app{
+    padding:6px 6px calc(6px + env(safe-area-inset-bottom, 0px));
+    padding-left:calc(6px + env(safe-area-inset-left, 0px));
+    padding-right:calc(6px + env(safe-area-inset-right, 0px));
+  }
+  .brand{font-size:13px}
+  .weeknav .btn{padding:3px 6px;font-size:11px}
+  .daytab{min-width:52px;padding:4px 6px}
+  .tl-grid{grid-template-columns:36px minmax(0,1fr)}
 }
 </style>
 </head>
@@ -522,14 +720,16 @@ input,select{font:inherit;color:inherit}
             7. 区块颜色自动分配，<b>相邻区块不会同色</b><br>
             8. 点已排好的块可<b>移动</b>或<b>移除</b>；拖到屏幕最右边的 🗑 即可删除<br>
             9. 晚上点<b>结束今天</b>存进记录；所有改动<b>随时自动保存并同步云端</b><br>
-            10. 记录里的<b>「累计投入」不含作息</b>：通勤、睡觉、吃饭、休息、弹吉他都不算小时数
+            10. 记录里的<b>「累计投入」不含作息</b>：通勤、睡觉、吃饭、休息、弹吉他都不算小时数<br>
+            11. 新建任务 / 重复任务时可勾<b>「非投入任务」</b>（默认不勾），勾上就不计入投入小时数，卡片会标「非投入」<br>
+            12. <b>手机端</b>：上半屏是任务、下半屏是时间表，两块各自独立滚动，界面已整体缩小
           </div>
         </div>
       </div>
     </aside>
 
     <!-- SECTION: content -->
-    <section style="display:flex;flex-direction:column;gap:12px;min-width:0">
+    <section class="content">
       <div class="tabs" role="tablist">
         <button class="tab on" id="tabPlan" type="button" role="tab">时间安排</button>
         <button class="tab" id="tabRec" type="button" role="tab">历史记录<span class="badge" id="recBadge">0</span></button>
@@ -576,8 +776,7 @@ input,select{font:inherit;color:inherit}
   </div>
 
   <div class="foot">
-    数据会自动同步到云端，本机浏览器同时保留一份离线副本；换设备或换浏览器打开会自动下载最新安排。
-    <br><button type="button" id="btnReset">清空全部数据并恢复初始状态</button>
+    <span class="foot-t">数据会自动同步到云端，本机浏览器同时保留一份离线副本；换设备或换浏览器打开会自动下载最新安排。<br></span><button type="button" id="btnReset">清空全部数据并恢复初始状态</button>
   </div>
 </div>
 
@@ -612,6 +811,12 @@ input,select{font:inherit;color:inherit}
           <button class="sbtn" type="button" data-step="1" data-target="fSlots" aria-label="增加">＋</button>
         </div>
         <div class="slotdur" id="fSlotsDur">2 段 · 30 分</div>
+      </div>
+      <div class="field">
+        <label class="chk" for="fNoCount">
+          <input type="checkbox" id="fNoCount">
+          <span><b>非投入任务</b><i>勾选后不计入「累计投入」小时数（默认不勾选）</i></span>
+        </label>
       </div>
       <div class="hint">这个任务只属于<b>当前选中的这一天</b>，其他日期不会看到它。每天的任务需要各自添加。</div>
     </div>
@@ -648,6 +853,12 @@ input,select{font:inherit;color:inherit}
           <button class="sbtn" type="button" data-step="1" data-target="rTimes" aria-label="增加">＋</button>
         </div>
         <div class="slotdur" id="rTimesDur">每天重复 1 次</div>
+      </div>
+      <div class="field">
+        <label class="chk" for="rNoCount">
+          <input type="checkbox" id="rNoCount">
+          <span><b>非投入任务</b><i>勾选后不计入「累计投入」小时数（默认不勾选）</i></span>
+        </label>
       </div>
       <div class="hint" id="rHint">重复任务<b>每天共用</b>，不需要选星期和固定时间。<br>它会出现在每天的任务库里，<b>具体几点做由你自己拖进格子</b>，每天最多排上面设定的次数，排满后卡片变灰。</div>
     </div>
@@ -948,6 +1159,14 @@ function kindOf(p) {
   if (p.repeatId) return 'repeat';
   return p.kind || 'homework';
 }
+/* 是否计入「累计投入」：固定作息类型一律不计；任务/重复任务看有没有勾「非投入任务」 */
+function isCountedPlacement(p) {
+  var kind = kindOf(p);
+  if (!isCountedKind(kind)) return false;
+  if (p.taskId) { var t = dayTaskById(p.taskId, p.day); if (t && t.noCount) return false; }
+  if (p.repeatId) { var r = repeatById(p.repeatId); if (r && r.noCount) return false; }
+  return true;
+}
 /* 可多次使用的固定任务按时间顺序编号：小休息1、小休息2、通勤1、通勤2…… */
 function displayName(p) {
   var kind = kindOf(p);
@@ -1082,7 +1301,15 @@ function makeCard(opt) {
     (opt.placed ? '，今天已排满，不能重复排' : '，点一下再点格子即可放入'));
 
   var nm = document.createElement('div');
-  nm.className = 'nm'; nm.textContent = opt.name;
+  nm.className = 'nm';
+  var nmTxt = document.createElement('span');
+  nmTxt.className = 'nmt'; nmTxt.textContent = opt.name;
+  nm.appendChild(nmTxt);
+  if (opt.noCount) {
+    var nc = document.createElement('span');
+    nc.className = 'ncbadge'; nc.textContent = '非投入'; nc.title = '这个任务不计入「累计投入」小时数';
+    nm.appendChild(nc);
+  }
   var dur = document.createElement('span');
   dur.className = 'dur';
   if (opt.placed) dur.textContent = '已排满 ✓';
@@ -1170,7 +1397,7 @@ function renderLibrary() {
     list.forEach(function (t) {
       var cnt = dayTaskCountOnDay(t.id, k);
       wk.appendChild(makeCard({
-        taskId: t.id, name: t.name, kind: 'homework', slots: t.slots,
+        taskId: t.id, name: t.name, kind: 'homework', slots: t.slots, noCount: !!t.noCount,
         placed: cnt > 0,
         placedMsg: '「' + t.name + '」今天已经排过了，每个任务只能放一次；要换时间先移除原来的',
         onEdit: function () { openTaskModal(t.id); },
@@ -1188,7 +1415,7 @@ function renderLibrary() {
       var cnt = repeatCountOnDay(r.id, k);
       var full = cnt >= (r.perDay || 1);
       rp.appendChild(makeCard({
-        repeatId: r.id, name: r.name, kind: 'repeat', slots: r.slots,
+        repeatId: r.id, name: r.name, kind: 'repeat', slots: r.slots, noCount: !!r.noCount,
         placed: full,
         placedMsg: '「' + r.name + '」今天的 ' + (r.perDay || 1) + ' 次已经排满了',
         meta: '每天 ' + (r.perDay || 1) + ' 次' + (cnt ? ' · 今天已排 ' + cnt + ' 次' : ''),
@@ -1732,6 +1959,7 @@ function openTaskModal(id) {
   var ni = document.getElementById('fName');
   ni.value = t ? t.name : '';
   setNum('fSlots', t ? t.slots : 2);
+  document.getElementById('fNoCount').checked = !!(t && t.noCount);
   openMask('maskTask');
   setTimeout(function () { ni.focus(); }, 60);
 }
@@ -1740,6 +1968,7 @@ function saveTaskModal() {
   if (!name) { toast('先给这个任务起个名字', 'err'); document.getElementById('fName').focus(); return; }
   var slots = readNum('fSlots', 2);
   clampNum('fSlots');
+  var noCount = document.getElementById('fNoCount').checked;
   var k = ui.dayKey;
   if (editingTaskId) {
     var t = dayTaskById(editingTaskId, k);
@@ -1747,11 +1976,12 @@ function saveTaskModal() {
       t.name = name;
       var old = t.slots;
       t.slots = slots;
+      t.noCount = noCount;
       if (old !== slots) resizePlacements(editingTaskId, slots);
     }
     toast('已更新「' + name + '」', 'ok');
   } else {
-    dayTasksFor(k).push({ id: uid('t'), name: name, slots: slots, kind: 'homework' });
+    dayTasksFor(k).push({ id: uid('t'), name: name, slots: slots, kind: 'homework', noCount: noCount });
     toast('已添加「' + name + '」到 ' + fmtDate(k) + '，拖到右边格子就能排上', 'ok');
   }
   closeMask('maskTask');
@@ -1780,6 +2010,7 @@ function openRepeatModal(id) {
   document.getElementById('rName').value = r ? r.name : '';
   setNum('rSlots', r ? r.slots : 2);
   setNum('rTimes', r ? (r.perDay || 1) : 1);
+  document.getElementById('rNoCount').checked = !!(r && r.noCount);
   openMask('maskRepeat');
   setTimeout(function () { document.getElementById('rName').focus(); }, 60);
 }
@@ -1789,15 +2020,16 @@ function saveRepeatModal() {
   var slots = readNum('rSlots', 2);
   var perDay = readNum('rTimes', 1);
   clampNum('rSlots'); clampNum('rTimes');
+  var noCount = document.getElementById('rNoCount').checked;
 
   if (editingRepeatId) {
     var r = repeatById(editingRepeatId);
-    if (r) { r.name = name; r.slots = slots; r.perDay = perDay; }
+    if (r) { r.name = name; r.slots = slots; r.perDay = perDay; r.noCount = noCount; }
     /* 每日次数变少时，裁掉各天超出部分的安排 */
     trimRepeatOverlimit(editingRepeatId, perDay);
     toast('已更新「' + name + '」', 'ok');
   } else {
-    state.repeats.push({ id: uid('r'), name: name, slots: slots, perDay: perDay });
+    state.repeats.push({ id: uid('r'), name: name, slots: slots, perDay: perDay, noCount: noCount });
     toast('已添加重复任务，每天可排 ' + perDay + ' 次', 'ok');
   }
   closeMask('maskRepeat');
@@ -1831,19 +2063,23 @@ function snapshotDay(k) {
       var sp = spanOf(p, rows);
       return {
         name: displayName(p), kind: kindOf(p), slots: sp.count, colorIdx: p.colorIdx,
-        range: spanLabel(k, sp.start, sp.count), startSlot: sp.start
+        range: spanLabel(k, sp.start, sp.count), startSlot: sp.start,
+        counted: isCountedPlacement(p)
       };
     });
   var total = items.reduce(function (s, it) { return s + it.slots; }, 0);
-  /* counted = 计入「累计投入」的段数：排除通勤/睡觉/吃饭/休息/弹吉他 */
-  var counted = items.reduce(function (s, it) { return s + (isCountedKind(it.kind) ? it.slots : 0); }, 0);
+  /* counted = 计入「累计投入」的段数：排除通勤/睡觉/吃饭/休息/弹吉他，以及勾了「非投入任务」的 */
+  var counted = items.reduce(function (s, it) { return s + (it.counted ? it.slots : 0); }, 0);
   return { items: items, totalSlots: total, countedSlots: counted };
 }
-/* 兼容旧记录：没有 countedSlots 字段时按 items 反算 */
+/* 兼容旧记录：没有 countedSlots 字段时按 items 反算（旧记录没有 counted 标记，按类型判断） */
 function countedOf(rec) {
   if (typeof rec.countedSlots === 'number') return rec.countedSlots;
   if (!Array.isArray(rec.items)) return rec.totalSlots || 0;
-  return rec.items.reduce(function (s, it) { return s + (isCountedKind(it.kind) ? (it.slots || 0) : 0); }, 0);
+  return rec.items.reduce(function (s, it) {
+    var ok = (typeof it.counted === 'boolean') ? it.counted : isCountedKind(it.kind);
+    return s + (ok ? (it.slots || 0) : 0);
+  }, 0);
 }
 function endDay() {
   var k = ui.dayKey;
